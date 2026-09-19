@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import { askJev } from "./triage/run";
+import { decide } from "./triage/policy";
 
 const USAGE = 'usage: bun src/cli.ts --subject "..." --body "..."';
 
@@ -13,8 +14,8 @@ if (!values.body?.trim()) {
 }
 
 try {
-  const result = await askJev({ id: "cli", subject: values.subject, body: values.body });
-  console.log(JSON.stringify(result, null, 2));
+  const { model, answers } = await askJev({ id: "cli", subject: values.subject, body: values.body });
+  console.log(JSON.stringify({ model, decision: decide(answers) }, null, 2));
 } catch (err) {
   console.error(`triage failed: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
