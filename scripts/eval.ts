@@ -6,6 +6,7 @@ import { askJev } from "../src/triage/run";
 import { AnswersSchema, PRIORITIES, TEAM_CHOICES } from "../src/types";
 import { computeMetrics, type Metrics, type Scored } from "./metrics";
 import { DEFAULT_PARAMS, decide, type PolicyParams } from "../src/triage/policy";
+import { questionsFingerprint } from "./fingerprint";
 
 const EVALSET = new URL("../tests/fixtures/evalset.csv", import.meta.url);
 const CACHE = new URL("../tests/fixtures/answers.json", import.meta.url);
@@ -21,7 +22,7 @@ const EvalRowSchema = z.object({
 });
 type EvalRow = z.infer<typeof EvalRowSchema>;
 
-const CacheSchema = z.record(z.string(), z.object({ model: z.string(), answers: AnswersSchema }));
+const CacheSchema = z.record(z.string(), z.object({ model: z.string(), questions: z.string(), answers: AnswersSchema }));
 type Cache = z.infer<typeof CacheSchema>;
 
 async function loadRows(): Promise<EvalRow[]> {
@@ -34,12 +35,21 @@ async function loadCache(): Promise<Cache> {
   return (await file.exists()) ? CacheSchema.parse(await file.json()) : {};
 }
 
+const isStale = (entry: Cache[string] | undefined, fingerprint: string): boolean =>
+  entry !== undefined && entry.questions !== fingerprint;
+
 async function fillCache(
   rows: readonly EvalRow[],
   start: Cache,
   refresh: boolean,
+  fingerprint: string,
 ): Promise<{ cache: Cache; errored: string[] }> {
-  const todo = rows.filter((r) => refresh || !start[r.id]);
+  const staleCount = rows.filter((r) => isStale(start[r.id], fingerprint)).length;
+  if (staleCount > 0) {
+    console.error(`${staleCount} cached answers are from different questions; refetching`);
+  }
+
+  const todo = rows.filter((r) => refresh || !start[r.id] || isStale(start[r.id], fingerprint));
   if (todo.length === 0) return { cache: start, errored: [] };
 
   const client = new TypeSafeClient();
@@ -47,7 +57,8 @@ async function fillCache(
   const errored: string[] = [];
   for (const row of todo) {
     try {
-      cache = { ...cache, [row.id]: await askJev(row, client) };
+      const result = await askJev(row, client);
+      cache = { ...cache, [row.id]: { ...result, questions: fingerprint } };
       // Written after every ticket so a crash keeps everything already paid for.
       await Bun.write(CACHE, `${JSON.stringify(cache, null, 2)}\n`);
       console.error(`fetched ${row.id}`);
@@ -59,24 +70,29 @@ async function fillCache(
   return { cache, errored };
 }
 
-function score(rows: readonly EvalRow[], cache: Cache, params: PolicyParams): Scored[] {
+// A stale entry (fetched under different questions) never scores as current,
+// even if a refetch attempt for it errored and left the old answer in place.
+function score(rows: readonly EvalRow[], cache: Cache, params: PolicyParams, fingerprint: string): Scored[] {
   return rows.flatMap((r) => {
     const hit = cache[r.id];
-    if (!hit || r.expected_priority === "" || r.expected_team === "") return [];
+    if (!hit || isStale(hit, fingerprint) || r.expected_priority === "" || r.expected_team === "") return [];
     return [{ expectedPriority: r.expected_priority, expectedTeam: r.expected_team, decision: decide(hit.answers, params) }];
   });
 }
 
 const pct = (x: number | null) => (x === null ? "n/a" : `${(x * 100).toFixed(1)}%`);
 
-function summary(m: Metrics) {
+function summary(m: Metrics, urgentCount: number, noneCount: number) {
   return {
+    n: m.n,
     urgentRecall: pct(m.urgentRecall),
+    urgentN: urgentCount,
     exact: pct(m.priorityExact),
     withinOne: pct(m.priorityWithinOne),
     routing: pct(m.routingAccuracy),
     needsTriage: pct(m.needsTriageRate),
     noneRecall: pct(m.noneRecall),
+    noneN: noneCount,
   };
 }
 
@@ -84,7 +100,7 @@ const steps = (from: number, to: number, by: number) =>
   Array.from({ length: Math.round((to - from) / by) + 1 }, (_, i) => Number((from + i * by).toFixed(2)));
 
 // Priority and routing do not interact, so each gets its own sweep.
-function sweepPriority(rows: readonly EvalRow[], cache: Cache) {
+function sweepPriority(rows: readonly EvalRow[], cache: Cache, fingerprint: string) {
   const results = steps(0.6, 0.9, 0.05).flatMap((urgent) =>
     steps(0.35, 0.65, 0.05).flatMap((high) =>
       steps(0.1, 0.4, 0.05).flatMap((normal) =>
@@ -95,7 +111,7 @@ function sweepPriority(rows: readonly EvalRow[], cache: Cache) {
             thresholds: { urgent, high, normal },
             weights: { ...DEFAULT_PARAMS.weights, frustration },
           };
-          return [{ urgent, high, normal, frustration, m: computeMetrics(score(rows, cache, params)) }];
+          return [{ urgent, high, normal, frustration, m: computeMetrics(score(rows, cache, params, fingerprint)) }];
         }),
       ),
     ),
@@ -112,11 +128,11 @@ function sweepPriority(rows: readonly EvalRow[], cache: Cache) {
   );
 }
 
-function sweepRouting(rows: readonly EvalRow[], cache: Cache) {
+function sweepRouting(rows: readonly EvalRow[], cache: Cache, fingerprint: string) {
   console.log("routing floor sweep");
   console.table(
     steps(0.3, 0.9, 0.05).map((floor) => {
-      const m = computeMetrics(score(rows, cache, { ...DEFAULT_PARAMS, teamConfidenceFloor: floor }));
+      const m = computeMetrics(score(rows, cache, { ...DEFAULT_PARAMS, teamConfidenceFloor: floor }, fingerprint));
       return { floor, routing: pct(m.routingAccuracy), needsTriage: pct(m.needsTriageRate), noneRecall: pct(m.noneRecall) };
     }),
   );
@@ -131,20 +147,32 @@ const { values } = parseArgs({
 });
 
 const rows = await loadRows();
-const { cache, errored } = await fillCache(rows, await loadCache(), values.refresh);
-const labelled = score(rows, cache, DEFAULT_PARAMS).length;
+const fingerprint = questionsFingerprint();
+
+const halfLabelled = rows.filter((r) => (r.expected_priority === "") !== (r.expected_team === "")).map((r) => r.id);
+if (halfLabelled.length > 0) {
+  console.error(`half-labelled rows skipped: ${halfLabelled.join(", ")}`);
+}
+
+const { cache, errored } = await fillCache(rows, await loadCache(), values.refresh, fingerprint);
+const scored = score(rows, cache, DEFAULT_PARAMS, fingerprint);
+const staleSkipped = rows.filter(
+  (r) => r.expected_priority !== "" && r.expected_team !== "" && isStale(cache[r.id], fingerprint),
+).length;
 console.log(
-  `${Object.keys(cache).length}/${rows.length} cached, ${errored.length} errored this run, ${labelled} labelled and scored`,
+  `${Object.keys(cache).length}/${rows.length} cached, ${errored.length} errored this run, ${scored.length} labelled and scored, ${staleSkipped} skipped as stale`,
 );
 
-if (labelled === 0) {
+if (scored.length === 0) {
   console.log("no labelled rows yet: fill expected_priority and expected_team in tests/fixtures/evalset.csv");
 } else if (values.sweep) {
-  sweepPriority(rows, cache);
-  sweepRouting(rows, cache);
+  sweepPriority(rows, cache, fingerprint);
+  sweepRouting(rows, cache, fingerprint);
 } else {
-  const m = computeMetrics(score(rows, cache, DEFAULT_PARAMS));
-  console.table(summary(m));
+  const m = computeMetrics(scored);
+  const urgentCount = scored.filter((r) => r.expectedPriority === "urgent").length;
+  const noneCount = scored.filter((r) => r.expectedTeam === "none").length;
+  console.table(summary(m, urgentCount, noneCount));
   console.log("misroutes (expected->got):", m.misroutes);
 }
 if (errored.length > 0) process.exitCode = 1;
