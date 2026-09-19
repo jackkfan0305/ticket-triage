@@ -1,24 +1,30 @@
 import { z } from "zod";
-import { AnswersSchema } from "../src/types";
+import { AnswersSchema, type Ticket } from "../src/types";
+import { requestFingerprint } from "./fingerprint";
 
-export const CacheSchema = z.record(z.string(), z.object({ model: z.string(), questions: z.string(), answers: AnswersSchema }));
+// `request` is optional so an entry written before it existed parses, then counts as stale.
+export const CacheSchema = z.record(
+  z.string(),
+  z.object({ model: z.string(), questions: z.string(), request: z.string().optional(), answers: AnswersSchema }),
+);
 export type Cache = z.infer<typeof CacheSchema>;
 type Entry = Cache[string];
 
-export const isStale = (entry: Entry | undefined, fingerprint: string): boolean =>
-  entry !== undefined && entry.questions !== fingerprint;
+// Stale means fetched under different questions or for different ticket text.
+export const isStale = (entry: Entry | undefined, ticket: Ticket, fingerprint: string): boolean =>
+  entry !== undefined && (entry.questions !== fingerprint || entry.request !== requestFingerprint(ticket));
 
-// Which rows have a current cached answer, which have none, and which were
-// fetched under different questions. Makes no requests.
-export function cacheStatus(rows: readonly { id: string }[], cache: Cache, fingerprint: string) {
+// Which rows have a current cached answer, which have none, and which are
+// stale. Makes no requests.
+export function cacheStatus(rows: readonly Ticket[], cache: Cache, fingerprint: string) {
   const fresh: string[] = [];
   const missing: string[] = [];
   const stale: string[] = [];
-  for (const { id } of rows) {
-    const hit = cache[id];
-    if (!hit) missing.push(id);
-    else if (isStale(hit, fingerprint)) stale.push(id);
-    else fresh.push(id);
+  for (const row of rows) {
+    const hit = cache[row.id];
+    if (!hit) missing.push(row.id);
+    else if (isStale(hit, row, fingerprint)) stale.push(row.id);
+    else fresh.push(row.id);
   }
   return { fresh, missing, stale };
 }

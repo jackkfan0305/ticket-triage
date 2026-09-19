@@ -6,7 +6,7 @@ import { askJev } from "../src/triage/run";
 import { PRIORITIES, TEAM_CHOICES } from "../src/types";
 import { computeMetrics, type Metrics, type Scored } from "./metrics";
 import { DEFAULT_PARAMS, decide, type PolicyParams } from "../src/triage/policy";
-import { questionsFingerprint } from "./fingerprint";
+import { questionsFingerprint, requestFingerprint } from "./fingerprint";
 import { CacheSchema, cacheStatus, isStale, type Cache } from "./cache";
 
 const EVALSET = new URL("../tests/fixtures/evalset.csv", import.meta.url);
@@ -39,12 +39,12 @@ async function fillCache(
   refresh: boolean,
   fingerprint: string,
 ): Promise<{ cache: Cache; errored: string[] }> {
-  const staleCount = rows.filter((r) => isStale(start[r.id], fingerprint)).length;
+  const staleCount = rows.filter((r) => isStale(start[r.id], r, fingerprint)).length;
   if (staleCount > 0) {
-    console.error(`${staleCount} cached answers are from different questions; refetching`);
+    console.error(`${staleCount} cached answers are stale (questions or ticket text changed); refetching`);
   }
 
-  const todo = rows.filter((r) => refresh || !start[r.id] || isStale(start[r.id], fingerprint));
+  const todo = rows.filter((r) => refresh || !start[r.id] || isStale(start[r.id], r, fingerprint));
   if (todo.length === 0) return { cache: start, errored: [] };
 
   const client = new TypeSafeClient();
@@ -53,7 +53,7 @@ async function fillCache(
   for (const row of todo) {
     try {
       const result = await askJev(row, client);
-      cache = { ...cache, [row.id]: { ...result, questions: fingerprint } };
+      cache = { ...cache, [row.id]: { ...result, questions: fingerprint, request: requestFingerprint(row) } };
       // Written after every ticket so a crash keeps everything already paid for.
       await Bun.write(CACHE, `${JSON.stringify(cache, null, 2)}\n`);
       console.error(`fetched ${row.id}`);
@@ -65,12 +65,12 @@ async function fillCache(
   return { cache, errored };
 }
 
-// A stale entry (fetched under different questions) never scores as current,
+// A stale entry (different questions or ticket text) never scores as current,
 // even if a refetch attempt for it errored and left the old answer in place.
 function score(rows: readonly EvalRow[], cache: Cache, params: PolicyParams, fingerprint: string): Scored[] {
   return rows.flatMap((r) => {
     const hit = cache[r.id];
-    if (!hit || isStale(hit, fingerprint) || r.expected_priority === "" || r.expected_team === "") return [];
+    if (!hit || isStale(hit, r, fingerprint) || r.expected_priority === "" || r.expected_team === "") return [];
     return [{ expectedPriority: r.expected_priority, expectedTeam: r.expected_team, decision: decide(hit.answers, params) }];
   });
 }
@@ -166,7 +166,7 @@ if (values.sweep) {
 }
 const scored = score(rows, cache, DEFAULT_PARAMS, fingerprint);
 const staleSkipped = rows.filter(
-  (r) => r.expected_priority !== "" && r.expected_team !== "" && isStale(cache[r.id], fingerprint),
+  (r) => r.expected_priority !== "" && r.expected_team !== "" && isStale(cache[r.id], r, fingerprint),
 ).length;
 console.log(
   `${Object.keys(cache).length}/${rows.length} cached, ${errored.length} errored this run, ${scored.length} labelled and scored, ${staleSkipped} skipped as stale`,
