@@ -1,4 +1,6 @@
+import { rename } from "node:fs/promises";
 import { z } from "zod";
+import type { JevResult } from "../src/triage/run";
 import { AnswersSchema, type Ticket } from "../src/types";
 import { requestFingerprint } from "./fingerprint";
 
@@ -28,3 +30,57 @@ export function cacheStatus(rows: readonly Ticket[], cache: Cache, fingerprint: 
   }
   return { fresh, missing, stale };
 }
+
+// Writes a temp file beside the cache and renames it over the cache. The rename
+// is atomic within one directory, so a crash mid-write leaves the old cache whole.
+export async function writeCache(path: string, cache: Cache): Promise<void> {
+  const tmp = `${path}.${process.pid}.tmp`;
+  await Bun.write(tmp, `${JSON.stringify(cache, null, 2)}\n`);
+  await rename(tmp, path);
+}
+
+type FillOptions = {
+  refresh: boolean;
+  fingerprint: string;
+  path: string;
+  ask: (row: Ticket) => Promise<JevResult>;
+};
+
+// Fetches missing and stale rows (every row with refresh) and saves after each
+// one, so a crash keeps everything already paid for. A failed request is
+// recorded and skipped; a failed save throws, because every later answer
+// would be paid for and then lost.
+export async function fillCache(
+  rows: readonly Ticket[],
+  start: Cache,
+  { refresh, fingerprint, path, ask }: FillOptions,
+): Promise<{ cache: Cache; errored: string[] }> {
+  const staleCount = rows.filter((r) => isStale(start[r.id], r, fingerprint)).length;
+  if (staleCount > 0) {
+    console.error(`${staleCount} cached answers are stale (questions or ticket text changed); refetching`);
+  }
+
+  const todo = rows.filter((r) => refresh || !start[r.id] || isStale(start[r.id], r, fingerprint));
+  let cache = start;
+  const errored: string[] = [];
+  for (const row of todo) {
+    let result: JevResult;
+    try {
+      result = await ask(row);
+    } catch (err) {
+      errored.push(row.id);
+      console.error(`${row.id} errored: ${errorMessage(err)}`);
+      continue;
+    }
+    cache = { ...cache, [row.id]: { ...result, questions: fingerprint, request: requestFingerprint(row) } };
+    try {
+      await writeCache(path, cache);
+    } catch (err) {
+      throw new Error(`cache write failed after fetching ${row.id}; stopped before more requests: ${errorMessage(err)}`);
+    }
+    console.error(`fetched ${row.id}`);
+  }
+  return { cache, errored };
+}
+
+const errorMessage = (err: unknown) => (err instanceof Error ? err.message : String(err));

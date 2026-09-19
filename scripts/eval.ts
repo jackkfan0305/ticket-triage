@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { TypeSafeClient } from "@typesafe-ai/sdk";
 import { parse } from "csv-parse/sync";
@@ -6,11 +7,11 @@ import { askJev } from "../src/triage/run";
 import { PRIORITIES, TEAM_CHOICES } from "../src/types";
 import { computeMetrics, type Metrics, type Scored } from "./metrics";
 import { DEFAULT_PARAMS, decide, type PolicyParams } from "../src/triage/policy";
-import { questionsFingerprint, requestFingerprint } from "./fingerprint";
-import { CacheSchema, cacheStatus, isStale, type Cache } from "./cache";
+import { questionsFingerprint } from "./fingerprint";
+import { CacheSchema, cacheStatus, fillCache, isStale, type Cache } from "./cache";
 
 const EVALSET = new URL("../tests/fixtures/evalset.csv", import.meta.url);
-const CACHE = new URL("../tests/fixtures/answers.json", import.meta.url);
+const CACHE = fileURLToPath(new URL("../tests/fixtures/answers.json", import.meta.url));
 
 const EvalRowSchema = z.object({
   id: z.string().min(1),
@@ -31,38 +32,6 @@ async function loadRows(): Promise<EvalRow[]> {
 async function loadCache(): Promise<Cache> {
   const file = Bun.file(CACHE);
   return (await file.exists()) ? CacheSchema.parse(await file.json()) : {};
-}
-
-async function fillCache(
-  rows: readonly EvalRow[],
-  start: Cache,
-  refresh: boolean,
-  fingerprint: string,
-): Promise<{ cache: Cache; errored: string[] }> {
-  const staleCount = rows.filter((r) => isStale(start[r.id], r, fingerprint)).length;
-  if (staleCount > 0) {
-    console.error(`${staleCount} cached answers are stale (questions or ticket text changed); refetching`);
-  }
-
-  const todo = rows.filter((r) => refresh || !start[r.id] || isStale(start[r.id], r, fingerprint));
-  if (todo.length === 0) return { cache: start, errored: [] };
-
-  const client = new TypeSafeClient();
-  let cache = start;
-  const errored: string[] = [];
-  for (const row of todo) {
-    try {
-      const result = await askJev(row, client);
-      cache = { ...cache, [row.id]: { ...result, questions: fingerprint, request: requestFingerprint(row) } };
-      // Written after every ticket so a crash keeps everything already paid for.
-      await Bun.write(CACHE, `${JSON.stringify(cache, null, 2)}\n`);
-      console.error(`fetched ${row.id}`);
-    } catch (err) {
-      errored.push(row.id);
-      console.error(`${row.id} errored: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  }
-  return { cache, errored };
 }
 
 // A stale entry (different questions or ticket text) never scores as current,
@@ -156,9 +125,16 @@ if (values.sweep && values.refresh) {
 
 // --sweep is cache-only: it names what it cannot score instead of paying to fetch it.
 const start = await loadCache();
+let client: TypeSafeClient | undefined;
 const { cache, errored } = values.sweep
   ? { cache: start, errored: [] as string[] }
-  : await fillCache(rows, start, values.refresh, fingerprint);
+  : await fillCache(rows, start, {
+      refresh: values.refresh,
+      fingerprint,
+      path: CACHE,
+      // Built on first use, so a run with nothing to fetch never creates a client.
+      ask: (row) => askJev(row, (client ??= new TypeSafeClient())),
+    });
 if (values.sweep) {
   const { missing, stale } = cacheStatus(rows, cache, fingerprint);
   if (missing.length > 0) console.error(`not cached, not scored: ${missing.join(", ")}`);
