@@ -33,10 +33,16 @@ export function urgency(a: Answers, w: PolicyParams["weights"]): number {
   );
 }
 
+// Urgency is a sum of float products, so a score that should equal a threshold
+// can land a hair below it (0.45 + 0.15 + 0.075 gives 0.7499999999999999).
+// Far below any real gap between scores, so it only restores inclusive thresholds.
+const THRESHOLD_TOLERANCE = 1e-9;
+
 function band(u: number, t: PolicyParams["thresholds"]): Priority {
-  if (u >= t.urgent) return "urgent";
-  if (u >= t.high) return "high";
-  if (u >= t.normal) return "normal";
+  const reaches = (threshold: number) => u >= threshold - THRESHOLD_TOLERANCE;
+  if (reaches(t.urgent)) return "urgent";
+  if (reaches(t.high)) return "high";
+  if (reaches(t.normal)) return "normal";
   return "low";
 }
 

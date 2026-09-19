@@ -64,6 +64,11 @@ describe("weighted urgency", () => {
     const impactOnly = { ...P, weights: { impact: 1, time: 0, frustration: 0 } };
     expect(run({ impact }, impactOnly).priority).toBe(priority);
   });
+
+  test("a sum that lands on a threshold in exact arithmetic reaches it despite float error", () => {
+    // 0.45 + 0.15 + 0.075 is 0.75, but floats give 0.7499999999999999.
+    expect(decide(makeAnswers({ impact: 3, time: 2, frustration: 3 }), DEFAULT_PARAMS).priority).toBe("urgent");
+  });
 });
 
 describe("frustration tag", () => {
