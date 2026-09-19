@@ -3,10 +3,11 @@ import { TypeSafeClient } from "@typesafe-ai/sdk";
 import { parse } from "csv-parse/sync";
 import { z } from "zod";
 import { askJev } from "../src/triage/run";
-import { AnswersSchema, PRIORITIES, TEAM_CHOICES } from "../src/types";
+import { PRIORITIES, TEAM_CHOICES } from "../src/types";
 import { computeMetrics, type Metrics, type Scored } from "./metrics";
 import { DEFAULT_PARAMS, decide, type PolicyParams } from "../src/triage/policy";
 import { questionsFingerprint } from "./fingerprint";
+import { CacheSchema, cacheStatus, isStale, type Cache } from "./cache";
 
 const EVALSET = new URL("../tests/fixtures/evalset.csv", import.meta.url);
 const CACHE = new URL("../tests/fixtures/answers.json", import.meta.url);
@@ -22,9 +23,6 @@ const EvalRowSchema = z.object({
 });
 type EvalRow = z.infer<typeof EvalRowSchema>;
 
-const CacheSchema = z.record(z.string(), z.object({ model: z.string(), questions: z.string(), answers: AnswersSchema }));
-type Cache = z.infer<typeof CacheSchema>;
-
 async function loadRows(): Promise<EvalRow[]> {
   const records = parse(await Bun.file(EVALSET).text(), { columns: true, skip_empty_lines: true });
   return z.array(EvalRowSchema).parse(records);
@@ -34,9 +32,6 @@ async function loadCache(): Promise<Cache> {
   const file = Bun.file(CACHE);
   return (await file.exists()) ? CacheSchema.parse(await file.json()) : {};
 }
-
-const isStale = (entry: Cache[string] | undefined, fingerprint: string): boolean =>
-  entry !== undefined && entry.questions !== fingerprint;
 
 async function fillCache(
   rows: readonly EvalRow[],
@@ -154,7 +149,21 @@ if (halfLabelled.length > 0) {
   console.error(`half-labelled rows skipped: ${halfLabelled.join(", ")}`);
 }
 
-const { cache, errored } = await fillCache(rows, await loadCache(), values.refresh, fingerprint);
+if (values.sweep && values.refresh) {
+  console.error("--sweep never calls the API; run --refresh on its own first");
+  process.exit(1);
+}
+
+// --sweep is cache-only: it names what it cannot score instead of paying to fetch it.
+const start = await loadCache();
+const { cache, errored } = values.sweep
+  ? { cache: start, errored: [] as string[] }
+  : await fillCache(rows, start, values.refresh, fingerprint);
+if (values.sweep) {
+  const { missing, stale } = cacheStatus(rows, cache, fingerprint);
+  if (missing.length > 0) console.error(`not cached, not scored: ${missing.join(", ")}`);
+  if (stale.length > 0) console.error(`stale, not scored: ${stale.join(", ")}`);
+}
 const scored = score(rows, cache, DEFAULT_PARAMS, fingerprint);
 const staleSkipped = rows.filter(
   (r) => r.expected_priority !== "" && r.expected_team !== "" && isStale(cache[r.id], fingerprint),
