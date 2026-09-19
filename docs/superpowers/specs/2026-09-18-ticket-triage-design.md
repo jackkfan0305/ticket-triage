@@ -39,7 +39,7 @@ ticket-triage/
 │   ├── triage/run.ts         Ticket -> TriageDecision
 │   └── cli.ts                single-ticket CLI
 ├── scripts/
-│   ├── build-evalset.ts      Hugging Face rows -> tests/fixtures/evalset.csv
+│   ├── build_evalset.py      Hugging Face rows -> tests/fixtures/evalset.csv
 │   └── eval.ts               run the set, cache answers, print metrics
 ├── tests/
 │   ├── policy.test.ts        table-driven, no network
@@ -264,6 +264,20 @@ The CLI exits non-zero. The eval script records the ticket as errored and contin
 Source: [Tobi-Bueck/customer-support-tickets](https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets),
 61,800 rows, CC-BY-NC-4.0.
 
+Loaded with the Hugging Face `datasets` library, so no manual download or Kaggle-style
+API key is needed:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("Tobi-Bueck/customer-support-tickets")
+```
+
+This makes `build_evalset.py` the one Python file in a TypeScript project. It runs once,
+writes `tests/fixtures/evalset.csv`, and nothing in `src/` imports from it. Only the CSV
+crosses the language boundary. Run it with `uv run --with datasets scripts/build_evalset.py`
+so the repo needs no Python project file.
+
 Verified column values:
 
 | Column | Values |
@@ -277,7 +291,7 @@ The Kaggle `suraj520` alternative was rejected: its rows are fabricated with the
 library, so its text is templated and its labels script-assigned. Calibrating
 thresholds against it would measure Faker rather than customer behaviour.
 
-`build-evalset.ts` filters to `language == "en"` and samples 60 rows stratified on
+`build_evalset.py` filters to `language == "en"` and samples 60 rows stratified on
 `priority` and `queue`, deliberately including five `Human Resources` rows. Those sit
 outside a SaaS support roster, so they are the only way to verify the no-match branch
 ever fires. A router that never says "I don't know" is a failure worth catching before
@@ -316,7 +330,7 @@ rather than from this document.
 
 ## Section 5: Build order
 
-1. `types.ts`, `config/teams.ts`, and `build-evalset.ts`. Produce the CSV and label it by hand.
+1. `types.ts`, `config/teams.ts`, and `build_evalset.py`. Produce the CSV and label it by hand.
 2. `questions.ts`, `run.ts`, `cli.ts`. Verify by hand against five tickets, reading the raw answers rather than the decision.
 3. `eval.ts` with answer caching. Populate `answers.json`.
 4. `policy.ts` and `policy.test.ts`, tuned against the cache with `--sweep`.
