@@ -1,0 +1,5042 @@
+{
+  "hf-26812": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 0.64,
+        "probabilities": {
+          "technical_support": 0,
+          "billing": 0,
+          "sales": 0.69,
+          "onboarding": 0.08,
+          "product_feedback": 0.23,
+          "none": 0,
+          "account_access": 0
+        }
+      }
+    }
+  },
+  "hf-12361": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.78
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 1.11,
+        "confidence": 0.87,
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.85,
+          "2": 0.13,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.98,
+        "probabilities": {
+          "technical_support": 0.99,
+          "account_access": 0,
+          "product_feedback": 0,
+          "billing": 0,
+          "none": 0.01,
+          "sales": 0,
+          "onboarding": 0
+        }
+      }
+    }
+  },
+  "hf-46531": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.73
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.99,
+        "confidence": 0.98,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.01,
+          "3": 0.99,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 1.03,
+        "confidence": 0.97,
+        "probabilities": {
+          "0": 0,
+          "1": 0.99,
+          "2": 0,
+          "3": 0.01
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.41,
+        "confidence": 0.59,
+        "probabilities": {
+          "0": 0.6,
+          "1": 0.4,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "technical_support": 1,
+          "account_access": 0,
+          "sales": 0,
+          "billing": 0,
+          "none": 0,
+          "product_feedback": 0,
+          "onboarding": 0
+        }
+      }
+    }
+  },
+  "hf-4239": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.91
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.03,
+        "confidence": 0.97,
+        "probabilities": {
+          "0": 0.97,
+          "1": 0.03,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.96,
+        "confidence": 0.94,
+        "probabilities": {
+          "0": 0.05,
+          "1": 0.94,
+          "2": 0.01,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.12,
+        "confidence": 0.88,
+        "probabilities": {
+          "0": 0.88,
+          "1": 0.11,
+          "2": 0.01,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.98,
+        "probabilities": {
+          "account_access": 0,
+          "technical_support": 0,
+          "onboarding": 0,
+          "none": 0.99,
+          "product_feedback": 0.01,
+          "sales": 0,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-5796": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 1.09,
+        "confidence": 0.09,
+        "probabilities": {
+          "0": 0.59,
+          "1": 0.03,
+          "2": 0.08,
+          "3": 0.3,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.04,
+        "confidence": 0.96,
+        "probabilities": {
+          "0": 0.96,
+          "1": 0.04,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.99,
+        "probabilities": {
+          "technical_support": 0.01,
+          "billing": 0,
+          "product_feedback": 0,
+          "onboarding": 0.99,
+          "sales": 0,
+          "none": 0,
+          "account_access": 0
+        }
+      }
+    }
+  },
+  "hf-53159": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.81
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.11,
+        "confidence": 0.89,
+        "probabilities": {
+          "0": 0.89,
+          "1": 0.11,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.9,
+        "probabilities": {
+          "billing": 0,
+          "technical_support": 0,
+          "none": 0.92,
+          "sales": 0.03,
+          "onboarding": 0,
+          "account_access": 0,
+          "product_feedback": 0.05
+        }
+      }
+    }
+  },
+  "hf-23877": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.81
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.97,
+        "confidence": 0.97,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.03,
+          "3": 0.97,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 1.56,
+        "confidence": 0.44,
+        "probabilities": {
+          "0": 0,
+          "1": 0.72,
+          "2": 0,
+          "3": 0.28
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.56,
+        "confidence": 0.56,
+        "probabilities": {
+          "0": 0.44,
+          "1": 0.56,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "billing": 0,
+          "account_access": 0,
+          "sales": 0,
+          "none": 0,
+          "onboarding": 0,
+          "technical_support": 1,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-59754": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.24
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 1.51,
+        "confidence": 0.58,
+        "probabilities": {
+          "0": 0,
+          "1": 0.69,
+          "2": 0.11,
+          "3": 0.2,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.08,
+        "confidence": 0.92,
+        "probabilities": {
+          "0": 0.93,
+          "1": 0.07,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.4,
+        "confidence": 0.6,
+        "probabilities": {
+          "0": 0.6799999999999999,
+          "1": 0.23,
+          "2": 0.09,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.01,
+          "product_feedback": 0,
+          "sales": 0,
+          "account_access": 0,
+          "billing": 0,
+          "onboarding": 0,
+          "technical_support": 0.99
+        }
+      }
+    }
+  },
+  "hf-51614": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.12
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.54,
+        "confidence": 0.61,
+        "probabilities": {
+          "0": 0,
+          "1": 0.01,
+          "2": 0.45,
+          "3": 0.54,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.47,
+        "confidence": 0.53,
+        "probabilities": {
+          "0": 0.54,
+          "1": 0.45,
+          "2": 0.01,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.36,
+        "confidence": 0.64,
+        "probabilities": {
+          "0": 0.66,
+          "1": 0.32,
+          "2": 0.02,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "account_access": 0,
+          "product_feedback": 0,
+          "billing": 0,
+          "onboarding": 0,
+          "sales": 0,
+          "technical_support": 1,
+          "none": 0
+        }
+      }
+    }
+  },
+  "hf-50058": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.03,
+        "confidence": 0.97,
+        "probabilities": {
+          "0": 0.97,
+          "1": 0.03,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 1,
+        "probabilities": {
+          "technical_support": 0,
+          "sales": 1,
+          "none": 0,
+          "product_feedback": 0,
+          "onboarding": 0,
+          "account_access": 0,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-2960": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.84
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.05,
+        "confidence": 0.95,
+        "probabilities": {
+          "0": 0.95,
+          "1": 0.05,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "product_feedback",
+        "confidence": 0.5,
+        "probabilities": {
+          "product_feedback": 0.5599999999999999,
+          "account_access": 0.01,
+          "sales": 0,
+          "technical_support": 0.05,
+          "onboarding": 0.03,
+          "none": 0.35,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-1559": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.14,
+        "confidence": 0.88,
+        "probabilities": {
+          "0": 0.88,
+          "1": 0.09,
+          "2": 0.03,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.08,
+        "confidence": 0.92,
+        "probabilities": {
+          "0": 0.92,
+          "1": 0.08,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.29,
+        "confidence": 0.71,
+        "probabilities": {
+          "0": 0.72,
+          "1": 0.28,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.5,
+        "probabilities": {
+          "account_access": 0,
+          "sales": 0,
+          "technical_support": 0,
+          "product_feedback": 0.03,
+          "none": 0.39,
+          "billing": 0,
+          "onboarding": 0.58
+        }
+      }
+    }
+  },
+  "hf-48399": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 1,
+        "probabilities": {
+          "account_access": 0,
+          "onboarding": 1,
+          "product_feedback": 0,
+          "technical_support": 0,
+          "billing": 0,
+          "none": 0,
+          "sales": 0
+        }
+      }
+    }
+  },
+  "hf-25500": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.21
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.33,
+        "confidence": 0.44,
+        "probabilities": {
+          "0": 0.03,
+          "1": 0.14,
+          "2": 0.29,
+          "3": 0.54,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.21,
+        "confidence": 0.79,
+        "probabilities": {
+          "0": 0.8,
+          "1": 0.2,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.07,
+        "confidence": 0.93,
+        "probabilities": {
+          "0": 0.93,
+          "1": 0.07,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "billing": 0,
+          "product_feedback": 0,
+          "onboarding": 0,
+          "account_access": 0,
+          "none": 0,
+          "sales": 0,
+          "technical_support": 1
+        }
+      }
+    }
+  },
+  "hf-60118": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.9,
+        "confidence": 0.25,
+        "probabilities": {
+          "0": 0.37,
+          "1": 0.36,
+          "2": 0.26,
+          "3": 0.01,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 1,
+        "confidence": 1,
+        "probabilities": {
+          "0": 0,
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.94,
+        "confidence": 0.77,
+        "probabilities": {
+          "0": 0.15,
+          "1": 0.76,
+          "2": 0.09,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "billing",
+        "confidence": 1,
+        "probabilities": {
+          "technical_support": 0,
+          "sales": 0,
+          "account_access": 0,
+          "none": 0,
+          "product_feedback": 0,
+          "onboarding": 0,
+          "billing": 1
+        }
+      }
+    }
+  },
+  "hf-58315": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.93
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 0.83,
+        "probabilities": {
+          "billing": 0,
+          "none": 0,
+          "product_feedback": 0,
+          "sales": 0.86,
+          "onboarding": 0.14,
+          "account_access": 0,
+          "technical_support": 0
+        }
+      }
+    }
+  },
+  "hf-25614": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 1,
+        "probabilities": {
+          "account_access": 0,
+          "technical_support": 0,
+          "onboarding": 0,
+          "none": 0,
+          "product_feedback": 0,
+          "sales": 1,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-55519": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.96,
+        "probabilities": {
+          "account_access": 0,
+          "billing": 0,
+          "onboarding": 0.97,
+          "none": 0.03,
+          "product_feedback": 0,
+          "sales": 0,
+          "technical_support": 0
+        }
+      }
+    }
+  },
+  "hf-53241": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.74
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.9
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.44,
+        "confidence": 0,
+        "probabilities": {
+          "0": 0.29,
+          "1": 0.04,
+          "2": 0.11,
+          "3": 0.06,
+          "4": 0.5
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.75,
+        "confidence": 0.25,
+        "probabilities": {
+          "0": 0.47,
+          "1": 0.42,
+          "2": 0.01,
+          "3": 0.1
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.04,
+        "confidence": 0.96,
+        "probabilities": {
+          "0": 0.98,
+          "1": 0.01,
+          "2": 0.01,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.51,
+        "probabilities": {
+          "onboarding": 0,
+          "technical_support": 0.41,
+          "account_access": 0,
+          "product_feedback": 0,
+          "none": 0.59,
+          "billing": 0,
+          "sales": 0
+        }
+      }
+    }
+  },
+  "hf-7029": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.92
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.08,
+        "confidence": 0.92,
+        "probabilities": {
+          "0": 0.92,
+          "1": 0.08,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.72,
+        "probabilities": {
+          "sales": 0,
+          "technical_support": 0.77,
+          "account_access": 0,
+          "none": 0.02,
+          "billing": 0,
+          "onboarding": 0.01,
+          "product_feedback": 0.2
+        }
+      }
+    }
+  },
+  "hf-23085": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.83
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.71,
+        "probabilities": {
+          "technical_support": 0.02,
+          "sales": 0,
+          "onboarding": 0.75,
+          "account_access": 0.01,
+          "product_feedback": 0,
+          "billing": 0,
+          "none": 0.22
+        }
+      }
+    }
+  },
+  "hf-1195": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.05,
+        "confidence": 0.95,
+        "probabilities": {
+          "0": 0.95,
+          "1": 0.05,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.96,
+        "probabilities": {
+          "technical_support": 0,
+          "sales": 0.02,
+          "onboarding": 0.01,
+          "account_access": 0,
+          "product_feedback": 0,
+          "none": 0.97,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-19128": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.97,
+        "probabilities": {
+          "technical_support": 0,
+          "billing": 0,
+          "none": 0.02,
+          "sales": 0,
+          "product_feedback": 0,
+          "account_access": 0,
+          "onboarding": 0.98
+        }
+      }
+    }
+  },
+  "hf-45900": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.4,
+        "probabilities": {
+          "onboarding": 0.49,
+          "product_feedback": 0.02,
+          "billing": 0,
+          "none": 0.28,
+          "account_access": 0,
+          "technical_support": 0.02,
+          "sales": 0.19
+        }
+      }
+    }
+  },
+  "hf-2940": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 0.97,
+        "probabilities": {
+          "billing": 0,
+          "onboarding": 0,
+          "sales": 0.98,
+          "none": 0.02,
+          "technical_support": 0,
+          "account_access": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-21966": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.02,
+        "confidence": 0.98,
+        "probabilities": {
+          "0": 0.98,
+          "1": 0.02,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.87,
+        "probabilities": {
+          "none": 0,
+          "sales": 0.11,
+          "account_access": 0,
+          "onboarding": 0.89,
+          "billing": 0,
+          "technical_support": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-14329": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.94,
+        "probabilities": {
+          "sales": 0,
+          "onboarding": 0.96,
+          "technical_support": 0,
+          "none": 0.04,
+          "billing": 0,
+          "account_access": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-46396": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 1,
+        "probabilities": {
+          "sales": 1,
+          "account_access": 0,
+          "technical_support": 0,
+          "product_feedback": 0,
+          "onboarding": 0,
+          "billing": 0,
+          "none": 0
+        }
+      }
+    }
+  },
+  "hf-54740": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.14
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.7,
+        "confidence": 0.74,
+        "probabilities": {
+          "0": 0,
+          "1": 0.02,
+          "2": 0.26,
+          "3": 0.72,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.28,
+        "confidence": 0.72,
+        "probabilities": {
+          "0": 0.74,
+          "1": 0.24,
+          "2": 0.02,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.56,
+        "confidence": 0.44,
+        "probabilities": {
+          "0": 0.58,
+          "1": 0.27,
+          "2": 0.15,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "technical_support": 1,
+          "sales": 0,
+          "onboarding": 0,
+          "account_access": 0,
+          "product_feedback": 0,
+          "billing": 0,
+          "none": 0
+        }
+      }
+    }
+  },
+  "hf-47408": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 1.89,
+        "confidence": 0.77,
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.15,
+          "2": 0.75,
+          "3": 0.08,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.14,
+        "confidence": 0.86,
+        "probabilities": {
+          "0": 0.87,
+          "1": 0.11,
+          "2": 0.02,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "billing",
+        "confidence": 0.67,
+        "probabilities": {
+          "account_access": 0,
+          "technical_support": 0.28,
+          "sales": 0,
+          "none": 0,
+          "product_feedback": 0,
+          "onboarding": 0,
+          "billing": 0.72
+        }
+      }
+    }
+  },
+  "hf-8325": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.34
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.8
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.97,
+        "confidence": 0.91,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.07,
+          "3": 0.89,
+          "4": 0.04
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 1,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.99,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.17,
+        "confidence": 0.83,
+        "probabilities": {
+          "0": 0.83,
+          "1": 0.17,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0,
+          "technical_support": 0.99,
+          "sales": 0,
+          "account_access": 0.01,
+          "billing": 0,
+          "product_feedback": 0,
+          "onboarding": 0
+        }
+      }
+    }
+  },
+  "hf-7650": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 1,
+        "probabilities": {
+          "product_feedback": 0,
+          "billing": 0,
+          "technical_support": 0,
+          "none": 0,
+          "sales": 1,
+          "account_access": 0,
+          "onboarding": 0
+        }
+      }
+    }
+  },
+  "hf-10486": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.85,
+        "probabilities": {
+          "account_access": 0,
+          "product_feedback": 0,
+          "billing": 0,
+          "onboarding": 0.88,
+          "sales": 0,
+          "none": 0.12,
+          "technical_support": 0
+        }
+      }
+    }
+  },
+  "hf-54920": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.4
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.03,
+        "confidence": 0.98,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0,
+          "2": 0,
+          "3": 0.01,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.62,
+        "probabilities": {
+          "account_access": 0,
+          "billing": 0,
+          "onboarding": 0,
+          "none": 0.68,
+          "sales": 0,
+          "technical_support": 0.32,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-54267": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.02,
+        "confidence": 0.98,
+        "probabilities": {
+          "0": 0.98,
+          "1": 0.02,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.98,
+        "probabilities": {
+          "billing": 0,
+          "account_access": 0,
+          "sales": 0,
+          "none": 0,
+          "onboarding": 0.98,
+          "product_feedback": 0,
+          "technical_support": 0.02
+        }
+      }
+    }
+  },
+  "hf-48906": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.88,
+        "confidence": 0.9,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.12,
+          "3": 0.88,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.99,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.99,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.25,
+        "confidence": 0.75,
+        "probabilities": {
+          "0": 0.75,
+          "1": 0.25,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "technical_support": 1,
+          "sales": 0,
+          "account_access": 0,
+          "billing": 0,
+          "product_feedback": 0,
+          "onboarding": 0
+        }
+      }
+    }
+  },
+  "hf-3115": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 1,
+        "probabilities": {
+          "product_feedback": 0,
+          "account_access": 0,
+          "sales": 0,
+          "none": 0,
+          "technical_support": 0,
+          "billing": 0,
+          "onboarding": 1
+        }
+      }
+    }
+  },
+  "hf-14648": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.58,
+        "confidence": 0.58,
+        "probabilities": {
+          "0": 0.42,
+          "1": 0.58,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.68,
+        "probabilities": {
+          "product_feedback": 0.1,
+          "account_access": 0,
+          "billing": 0,
+          "none": 0.09,
+          "onboarding": 0.72,
+          "technical_support": 0.01,
+          "sales": 0.08
+        }
+      }
+    }
+  },
+  "hf-55522": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.77,
+        "confidence": 0.81,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.23,
+          "3": 0.77,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 1,
+        "confidence": 1,
+        "probabilities": {
+          "0": 0,
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.7,
+        "confidence": 0.68,
+        "probabilities": {
+          "0": 0.31,
+          "1": 0.68,
+          "2": 0.01,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "account_access": 0,
+          "product_feedback": 0,
+          "billing": 0,
+          "onboarding": 0,
+          "sales": 0,
+          "technical_support": 1,
+          "none": 0
+        }
+      }
+    }
+  },
+  "hf-9983": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.46,
+        "confidence": 0.62,
+        "probabilities": {
+          "0": 0.76,
+          "1": 0.1,
+          "2": 0.08,
+          "3": 0.06,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.3,
+        "confidence": 0.7,
+        "probabilities": {
+          "0": 0.7,
+          "1": 0.3,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.64,
+        "confidence": 0.52,
+        "probabilities": {
+          "0": 0.42,
+          "1": 0.52,
+          "2": 0.06,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.91,
+        "probabilities": {
+          "account_access": 0,
+          "billing": 0,
+          "sales": 0,
+          "none": 0.93,
+          "product_feedback": 0.01,
+          "onboarding": 0.05,
+          "technical_support": 0.01
+        }
+      }
+    }
+  },
+  "hf-14270": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 1,
+        "probabilities": {
+          "billing": 0,
+          "onboarding": 1,
+          "sales": 0,
+          "none": 0,
+          "technical_support": 0,
+          "account_access": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-4823": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.87
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 3.28,
+        "confidence": 0.4,
+        "probabilities": {
+          "0": 0.07,
+          "1": 0.01,
+          "2": 0.14,
+          "3": 0.14,
+          "4": 0.64
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.67,
+        "confidence": 0.67,
+        "probabilities": {
+          "0": 0.33,
+          "1": 0.67,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.3,
+        "confidence": 0.7,
+        "probabilities": {
+          "0": 0.7,
+          "1": 0.29,
+          "2": 0.01,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.87,
+        "probabilities": {
+          "sales": 0,
+          "product_feedback": 0,
+          "none": 0.09,
+          "technical_support": 0.9,
+          "onboarding": 0.01,
+          "account_access": 0,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-61452": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.74,
+        "confidence": 0.79,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.25,
+          "3": 0.75,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.1,
+        "confidence": 0.9,
+        "probabilities": {
+          "0": 0.9,
+          "1": 0.1,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.17,
+        "confidence": 0.83,
+        "probabilities": {
+          "0": 0.84,
+          "1": 0.16,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.98,
+        "probabilities": {
+          "product_feedback": 0,
+          "account_access": 0,
+          "technical_support": 0.99,
+          "none": 0.01,
+          "sales": 0,
+          "onboarding": 0,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-3839": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.86
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.65,
+        "confidence": 0.58,
+        "probabilities": {
+          "0": 0.43,
+          "1": 0.51,
+          "2": 0.04,
+          "3": 0.02,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.16,
+        "confidence": 0.84,
+        "probabilities": {
+          "0": 0.86,
+          "1": 0.12,
+          "2": 0.02,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.96,
+        "probabilities": {
+          "billing": 0,
+          "account_access": 0,
+          "product_feedback": 0.03,
+          "none": 0.97,
+          "onboarding": 0,
+          "technical_support": 0,
+          "sales": 0
+        }
+      }
+    }
+  },
+  "hf-9653": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.78
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.15,
+        "confidence": 0.85,
+        "probabilities": {
+          "0": 0.85,
+          "1": 0.15,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "product_feedback",
+        "confidence": 0.31,
+        "probabilities": {
+          "technical_support": 0.01,
+          "sales": 0.01,
+          "billing": 0,
+          "product_feedback": 0.41000000000000003,
+          "account_access": 0,
+          "onboarding": 0.29,
+          "none": 0.28
+        }
+      }
+    }
+  },
+  "hf-54459": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.8
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.36,
+        "confidence": 0.7,
+        "probabilities": {
+          "0": 0.67,
+          "1": 0.31,
+          "2": 0.01,
+          "3": 0.01,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.09,
+        "confidence": 0.91,
+        "probabilities": {
+          "0": 0.94,
+          "1": 0.03,
+          "2": 0.03,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.95,
+        "probabilities": {
+          "technical_support": 0,
+          "billing": 0,
+          "account_access": 0,
+          "sales": 0,
+          "none": 0.97,
+          "onboarding": 0.01,
+          "product_feedback": 0.02
+        }
+      }
+    }
+  },
+  "hf-44915": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.43,
+        "confidence": 0.61,
+        "probabilities": {
+          "0": 0,
+          "1": 0.02,
+          "2": 0.54,
+          "3": 0.44,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.11,
+        "confidence": 0.89,
+        "probabilities": {
+          "0": 0.9,
+          "1": 0.1,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.61,
+        "confidence": 0.39,
+        "probabilities": {
+          "0": 0.48,
+          "1": 0.43,
+          "2": 0.09,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "product_feedback": 0,
+          "onboarding": 0,
+          "technical_support": 1,
+          "none": 0,
+          "sales": 0,
+          "account_access": 0,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-53461": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.86,
+        "confidence": 0.28,
+        "probabilities": {
+          "0": 0.41,
+          "1": 0.35,
+          "2": 0.22,
+          "3": 0.02,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.02,
+        "confidence": 0.98,
+        "probabilities": {
+          "0": 0.98,
+          "1": 0.02,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.82,
+        "confidence": 0.43,
+        "probabilities": {
+          "0": 0.38,
+          "1": 0.43,
+          "2": 0.19,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "billing",
+        "confidence": 1,
+        "probabilities": {
+          "billing": 1,
+          "onboarding": 0,
+          "sales": 0,
+          "none": 0,
+          "technical_support": 0,
+          "account_access": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-26744": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.9
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.85
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.96,
+        "confidence": 0.96,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.03,
+          "3": 0.97,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.18,
+        "confidence": 0.82,
+        "probabilities": {
+          "0": 0.86,
+          "1": 0.12,
+          "2": 0,
+          "3": 0.02
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "billing": 0,
+          "account_access": 0,
+          "technical_support": 1,
+          "none": 0,
+          "sales": 0,
+          "onboarding": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-58794": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.74
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.23
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.19,
+        "confidence": 0.84,
+        "probabilities": {
+          "0": 0.94,
+          "1": 0,
+          "2": 0,
+          "3": 0.05,
+          "4": 0.01
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.04,
+        "confidence": 0.96,
+        "probabilities": {
+          "0": 0.96,
+          "1": 0.04,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.04,
+        "confidence": 0.96,
+        "probabilities": {
+          "0": 0.97,
+          "1": 0.03,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.84,
+        "probabilities": {
+          "onboarding": 0,
+          "sales": 0,
+          "technical_support": 0.08,
+          "account_access": 0.05,
+          "billing": 0,
+          "product_feedback": 0,
+          "none": 0.87
+        }
+      }
+    }
+  },
+  "hf-25949": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.87
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0.02,
+        "confidence": 0.98,
+        "probabilities": {
+          "0": 0.98,
+          "1": 0.02,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "product_feedback",
+        "confidence": 0.92,
+        "probabilities": {
+          "product_feedback": 0.93,
+          "account_access": 0,
+          "technical_support": 0.01,
+          "none": 0.05,
+          "billing": 0,
+          "sales": 0,
+          "onboarding": 0
+        }
+      }
+    }
+  },
+  "hf-19356": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "billing",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "sales": 0,
+          "account_access": 0,
+          "onboarding": 0,
+          "billing": 1,
+          "technical_support": 0,
+          "product_feedback": 0
+        }
+      }
+    }
+  },
+  "hf-58056": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.9
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.96
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.08,
+        "confidence": 0,
+        "probabilities": {
+          "0": 0.39,
+          "1": 0.03,
+          "2": 0.1,
+          "3": 0.07,
+          "4": 0.41
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.86,
+        "confidence": 0.82,
+        "probabilities": {
+          "0": 0.16,
+          "1": 0.82,
+          "2": 0.01,
+          "3": 0.01
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.49,
+        "probabilities": {
+          "onboarding": 0,
+          "account_access": 0.27,
+          "product_feedback": 0,
+          "technical_support": 0.16,
+          "billing": 0,
+          "none": 0.56,
+          "sales": 0
+        }
+      }
+    }
+  },
+  "hf-61655": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.89
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.97,
+        "probabilities": {
+          "onboarding": 0.99,
+          "none": 0.01,
+          "billing": 0,
+          "product_feedback": 0,
+          "technical_support": 0,
+          "account_access": 0,
+          "sales": 0
+        }
+      }
+    }
+  },
+  "hf-49849": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "onboarding",
+        "confidence": 0.67,
+        "probabilities": {
+          "billing": 0,
+          "account_access": 0,
+          "technical_support": 0,
+          "none": 0,
+          "sales": 0.06,
+          "onboarding": 0.72,
+          "product_feedback": 0.22
+        }
+      }
+    }
+  },
+  "hf-17405": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.59
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.22,
+        "confidence": 0.63,
+        "probabilities": {
+          "0": 0,
+          "1": 0.11,
+          "2": 0.56,
+          "3": 0.33,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 1,
+        "confidence": 1,
+        "probabilities": {
+          "0": 0,
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.36,
+        "confidence": 0.64,
+        "probabilities": {
+          "0": 0.64,
+          "1": 0.36,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "account_access": 0,
+          "sales": 0,
+          "technical_support": 1,
+          "onboarding": 0,
+          "product_feedback": 0,
+          "billing": 0,
+          "none": 0
+        }
+      }
+    }
+  },
+  "hf-6013": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 1.44,
+        "confidence": 0.43,
+        "probabilities": {
+          "0": 0.2,
+          "1": 0.21,
+          "2": 0.53,
+          "3": 0.06,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.03,
+        "confidence": 0.97,
+        "probabilities": {
+          "0": 0.97,
+          "1": 0.03,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 1.09,
+        "confidence": 0.38,
+        "probabilities": {
+          "0": 0.26,
+          "1": 0.39,
+          "2": 0.35,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "billing",
+        "confidence": 1,
+        "probabilities": {
+          "billing": 1,
+          "sales": 0,
+          "product_feedback": 0,
+          "none": 0,
+          "onboarding": 0,
+          "technical_support": 0,
+          "account_access": 0
+        }
+      }
+    }
+  },
+  "hf-27048": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.93
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 1.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0,
+          "1": 1,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.05,
+        "confidence": 0.95,
+        "probabilities": {
+          "0": 0.95,
+          "1": 0.05,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.01,
+        "confidence": 0.99,
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 0.94,
+        "probabilities": {
+          "none": 0.04,
+          "product_feedback": 0,
+          "sales": 0,
+          "technical_support": 0.96,
+          "onboarding": 0,
+          "account_access": 0,
+          "billing": 0
+        }
+      }
+    }
+  },
+  "hf-2997": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.64
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 2.95,
+        "confidence": 0.94,
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.06,
+          "3": 0.93,
+          "4": 0.01
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.91,
+        "confidence": 0.82,
+        "probabilities": {
+          "0": 0.14,
+          "1": 0.82,
+          "2": 0.03,
+          "3": 0.01
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0.8,
+        "confidence": 0.57,
+        "probabilities": {
+          "0": 0.32,
+          "1": 0.5599999999999999,
+          "2": 0.12,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "technical_support",
+        "confidence": 1,
+        "probabilities": {
+          "technical_support": 1,
+          "product_feedback": 0,
+          "onboarding": 0,
+          "billing": 0,
+          "sales": 0,
+          "account_access": 0,
+          "none": 0
+        }
+      }
+    }
+  },
+  "hf-11154": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "has_request": {
+        "type": "noul",
+        "noul": 0.83
+      },
+      "is_security_or_data_loss": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "is_outage": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "impact_severity": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "legend": {
+          "0": "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+          "1": "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+          "2": "A feature the customer needs is broken, and a workaround exists or is implied.",
+          "3": "The customer cannot do their work and mentions no workaround.",
+          "4": "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+        }
+      },
+      "time_pressure": {
+        "type": "score",
+        "score": 0.53,
+        "confidence": 0.53,
+        "probabilities": {
+          "0": 0.47,
+          "1": 0.53,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "The message refers to no deadline or timeframe at all.",
+          "1": "The customer wants this resolved reasonably soon but names no date.",
+          "2": "The customer names a deadline some days away, or says the problem is getting worse.",
+          "3": "The customer names a deadline today or tomorrow, or says work has already stopped."
+        }
+      },
+      "customer_frustration": {
+        "type": "score",
+        "score": 0,
+        "confidence": 1,
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "legend": {
+          "0": "Calm and matter of fact.",
+          "1": "Mildly annoyed but polite.",
+          "2": "Clearly frustrated; complains about the product or about previous support.",
+          "3": "Angry; threatens to cancel, escalate, or make the problem public."
+        }
+      },
+      "team": {
+        "type": "choice",
+        "choice": "sales",
+        "confidence": 0.99,
+        "probabilities": {
+          "technical_support": 0,
+          "sales": 0.99,
+          "onboarding": 0,
+          "account_access": 0,
+          "product_feedback": 0,
+          "none": 0.01,
+          "billing": 0
+        }
+      }
+    }
+  }
+}
