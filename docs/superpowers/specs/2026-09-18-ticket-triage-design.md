@@ -20,9 +20,9 @@ In scope: the judgment layer, the policy layer, a CLI for single tickets, and an
 offline evaluation harness run against labelled public data.
 
 Deferred, designed for but not built: the Zendesk integration. Section 6 records the
-research so it does not have to be redone.
+research so it does not have to be redone. A frontend visualization, noted in Section 7.
 
-Out of scope: a UI, a queue, multi-language routing, reply drafting, and any model
+Out of scope: a queue, multi-language routing, reply drafting, and any model
 training or fine-tuning.
 
 ## Section 1: Architecture
@@ -357,6 +357,16 @@ Shape, when the time comes:
 - After signature verification passes, return 200 even on internal failure. A non-2xx makes Zendesk retry, and a retry storm on an expired API key helps nobody.
 - Sandboxes are an Enterprise feature. Development uses a free trial account seeded through the Create Ticket endpoint from the same eval CSV.
 - Open question deferred with it: whether an end-user comment on an open ticket should trigger re-triage, or only ticket creation.
+
+## Section 7: Deferred frontend visualization
+
+Planned for later. Not built.
+
+The data it needs already exists. `TriageDecision.evidence` keeps the raw Jev answers
+for every decision, and `tests/fixtures/answers.json` holds them for the whole eval set.
+Nothing in Sections 1 through 4 has to change to support it. The one constraint on
+current work: keep `evidence` complete and keep `policy.ts` pure, so a frontend can
+re-run `decide()` in the browser when someone drags a weight or threshold.
 
 ## Open questions
 
