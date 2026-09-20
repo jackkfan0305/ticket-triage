@@ -105,6 +105,17 @@ export function Board({ rows, params, onOpen }: BoardProps) {
                     <span className="mt-px block truncate text-[13.5px] text-ink" title={row.subject}>
                       {row.subject || "(untitled)"}
                     </span>
+                    {/* the team column is gone at this width, so the value moves
+                        under the subject rather than disappearing */}
+                    {verdict && (
+                      <span
+                        className={`num mt-0.5 block truncate text-[11px] sm:hidden ${
+                          verdict.team === null ? "text-p-high" : "text-ink-2"
+                        }`}
+                      >
+                        {verdict.team === null ? "needs-triage" : humanTeam(verdict.team)}
+                      </span>
+                    )}
                   </button>
                 </TableCell>
 

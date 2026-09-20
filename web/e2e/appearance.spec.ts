@@ -48,6 +48,11 @@ test.describe("responsive", () => {
 });
 
 test.describe("visual regression", () => {
+  // `animations: "disabled"` freezes CSS animations, not GSAP's JS transforms,
+  // so without this the entrance stagger lands in the baseline and the
+  // comparison is flaky. Reduced motion skips it and settles the page.
+  test.use({ reducedMotion: "reduce" });
+
   for (const theme of THEMES) {
     for (const width of [320, 768, 1024, 1440] as const) {
       test(`index at ${width}, ${theme}`, async ({ page }) => {

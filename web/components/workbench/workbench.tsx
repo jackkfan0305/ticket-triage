@@ -227,7 +227,9 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 pt-5 pb-2.5">
+          {/* stacked while narrow: on one wrapping row the chips break around
+              the heading and it lands in the middle of its own group */}
+          <div className="flex flex-col items-start gap-2.5 pt-5 pb-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
             <h2 id="tickets-heading" className="cap m-0 whitespace-nowrap text-ink-2">
               Tickets
               <span className="num ml-1.5 text-[11px] font-light tracking-normal normal-case text-ink-3">
@@ -241,7 +243,7 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
               onValueChange={(next) => setFilter((next.at(-1) as FilterKey | undefined) ?? "all")}
               aria-label="Filter tickets by outcome"
               spacing={1}
-              className="w-auto flex-1 flex-wrap"
+              className="w-full flex-wrap sm:w-auto sm:flex-1"
             >
               {PRIORITY_FILTERS.map((key) => (
                 <ToggleGroupItem
