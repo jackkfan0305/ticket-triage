@@ -140,13 +140,19 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
 
     const started = performance.now();
     let failures = 0;
+    let firstReason: string | null = null;
 
     await pooled(
       targets,
       POOL_SIZE,
       (row) => classify({ subject: row.subject, body: row.body }),
       ({ item, value, error }) => {
-        if (error) failures += 1;
+        if (error) {
+          failures += 1;
+          // the reason matters more than the count: sixty identical failures
+          // are one problem, and the message names it
+          firstReason ??= error instanceof Error ? error.message : String(error);
+        }
         if (value) setLiveModel(value.model);
         // each response lands on its own, so rows resolve one at a time
         patch(item.id, { pending: false, live: value ?? null });
@@ -156,7 +162,9 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
 
     setWallMs(Math.round(performance.now() - started));
     setRunning(false);
-    if (failures > 0) setRunError(`${failures} of ${targets.length} tickets failed; the rest are shown.`);
+    if (failures > 0) {
+      setRunError(`${failures} of ${targets.length} tickets failed. ${firstReason ?? ""}`.trim());
+    }
   }, [running, rows, patch]);
 
   const submitCompose = useCallback(

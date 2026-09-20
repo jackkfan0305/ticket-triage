@@ -4,8 +4,8 @@ import { expect, test, type Page } from "@playwright/test";
 const WIDTHS = [320, 375, 768, 1024, 1440, 1920] as const;
 const THEMES = ["light", "dark"] as const;
 
-const setTheme = (page: Page, theme: (typeof THEMES)[number]) =>
-  page.evaluate((value) => document.documentElement.setAttribute("data-theme", value), theme);
+// Themes come from the emulated OS preference, which is applied before first
+// paint. Flipping [data-theme] by hand after load let axe race the restyle.
 
 // The mockup was never seen at any width but 1280, so these are the first real
 // measurements at anything else.
@@ -47,18 +47,17 @@ test.describe("responsive", () => {
   });
 });
 
-test.describe("visual regression", () => {
-  // `animations: "disabled"` freezes CSS animations, not GSAP's JS transforms,
-  // so without this the entrance stagger lands in the baseline and the
-  // comparison is flaky. Reduced motion skips it and settles the page.
-  test.use({ reducedMotion: "reduce" });
+for (const theme of THEMES) {
+  test.describe(`visual regression, ${theme}`, () => {
+    // `animations: "disabled"` freezes CSS animations, not GSAP's JS
+    // transforms, so without this the entrance stagger lands in the baseline
+    // and the comparison is flaky. Reduced motion skips it and settles.
+    test.use({ reducedMotion: "reduce", colorScheme: theme });
 
-  for (const theme of THEMES) {
     for (const width of [320, 768, 1024, 1440] as const) {
-      test(`index at ${width}, ${theme}`, async ({ page }) => {
+      test(`index at ${width}`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto("/");
-        await setTheme(page, theme);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         await expect(page).toHaveScreenshot(`index-${width}-${theme}.png`, {
           fullPage: false,
@@ -66,10 +65,9 @@ test.describe("visual regression", () => {
         });
       });
 
-      test(`detail at ${width}, ${theme}`, async ({ page }) => {
+      test(`detail at ${width}`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto("/");
-        await setTheme(page, theme);
         await page.getByRole("button", { name: /issue with investment data/i }).click();
         await expect(page.getByText(/scored judgments/i)).toBeVisible();
         await expect(page).toHaveScreenshot(`detail-${width}-${theme}.png`, {
@@ -78,35 +76,45 @@ test.describe("visual regression", () => {
         });
       });
     }
-  }
-});
+  });
+}
 
-test.describe("accessibility", () => {
-  // Reduced motion settles the page immediately. Auditing mid-entrance measures
-  // a fading element's composited colour, not the palette.
-  test.use({ reducedMotion: "reduce" });
+const audit = (page: Page) =>
+  new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
 
-  const audit = (page: Page) =>
-    new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
+for (const theme of THEMES) {
+  test.describe(`accessibility, ${theme}`, () => {
+    // Reduced motion settles the page immediately. Auditing mid-entrance
+    // measures a fading element's composited colour, not the palette.
+    test.use({ reducedMotion: "reduce", colorScheme: theme });
 
-  for (const theme of THEMES) {
-    test(`the index has no axe violation in ${theme}`, async ({ page }) => {
+    test("the index has no axe violation", async ({ page }) => {
       await page.goto("/");
-      await setTheme(page, theme);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const { violations } = await audit(page);
       expect(violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
     });
 
-    test(`the detail view has no axe violation in ${theme}`, async ({ page }) => {
+    test("the detail view has no axe violation", async ({ page }) => {
       await page.goto("/");
-      await setTheme(page, theme);
       await page.getByRole("button", { name: /issue with investment data/i }).click();
       await expect(page.getByText(/scored judgments/i)).toBeVisible();
       const { violations } = await audit(page);
       expect(violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
     });
-  }
+
+    test("the [data-theme] override resolves the same palette", async ({ page }) => {
+      await page.goto("/");
+      const viaMedia = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
+      const viaAttribute = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      expect(viaAttribute).toBe(viaMedia);
+    });
+  });
+}
+
+test.describe("accessibility", () => {
+  test.use({ reducedMotion: "reduce" });
 
   test("the policy drawer and compose form pass too", async ({ page }) => {
     await page.goto("/");

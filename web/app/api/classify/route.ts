@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { askJev } from "../../../../src/triage/run";
+import { API_KEY_NAME, hasApiKey } from "@/lib/env";
 
 // askJev builds a TypeSafeClient, which is server-only and holds the API key.
 export const runtime = "nodejs";
@@ -12,7 +13,21 @@ const Body = z.object({
     .refine((v) => v.trim().length > 0, "Body is required."),
 });
 
+/** Reports whether the key is present, never what it is. */
+export function GET(): Response {
+  return Response.json({ configured: hasApiKey() });
+}
+
 export async function POST(request: Request): Promise<Response> {
+  // A missing key is a deployment fault, not an upstream one. Sixty tickets
+  // reporting "upstream" when nothing was ever sent hides the real cause.
+  if (!hasApiKey()) {
+    return Response.json(
+      { error: `${API_KEY_NAME} is not set. Add it to the repo-root .env and restart the server.` },
+      { status: 503 },
+    );
+  }
+
   let payload: unknown;
   try {
     payload = await request.json();

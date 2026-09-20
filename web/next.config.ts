@@ -1,10 +1,10 @@
 import path from "node:path";
-import { loadEnvConfig } from "@next/env";
 import type { NextConfig } from "next";
 
-// TYPESAFE_API_KEY lives in the repo root .env, which Next would not otherwise
-// see from web/. Loading it here keeps one copy of the secret.
-loadEnvConfig(path.join(process.cwd(), ".."));
+// The repo-root .env is loaded in lib/env.ts, not here: Next rebuilds the
+// server runtime's process.env from the project directory's own env files, so
+// anything set while this config is evaluated is discarded before a request
+// is ever served.
 
 const config: NextConfig = {
   // the repo root, not web/: src/ has to stay inside the root or the imports
