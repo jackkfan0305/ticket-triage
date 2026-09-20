@@ -1,5 +1,7 @@
-import { Spike } from "./spike";
+import { Workbench } from "@/components/workbench/workbench";
+import { loadCachedRun } from "@/lib/fixtures";
 
-export default function Page() {
-  return <Spike />;
+export default async function Page() {
+  const { model, tickets } = await loadCachedRun();
+  return <Workbench cachedModel={model} seed={tickets} />;
 }

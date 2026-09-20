@@ -1,0 +1,262 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* shadcn components ship `dark:` utilities. The page has no `.dark` class: the
+   theme comes from the OS unless [data-theme] overrides it, so the variant has
+   to match both routes or those utilities never fire. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-theme="dark"], :root[data-theme="dark"] *) {
+    @slot;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Light is the base definition. Every token gets its value here, so nothing
+   depends on a media query or an attribute block having matched.
+   --------------------------------------------------------------------------- */
+:root {
+  --ground: oklch(97.5% 0.004 250);
+  --panel: oklch(100% 0 0);
+  --panel-2: oklch(96% 0.005 252);
+  --line: oklch(89% 0.008 252);
+  --line-soft: oklch(93.5% 0.006 252);
+  --ink: oklch(26% 0.02 258);
+  --ink-2: oklch(48% 0.016 256);
+  --ink-3: oklch(51% 0.014 254);
+
+  /* the one interactive accent; `--accent` itself belongs to shadcn */
+  --brand: oklch(50% 0.14 268);
+  --brand-ink: oklch(99% 0 0);
+  --brand-soft: oklch(93% 0.035 268);
+
+  /* the four priority bands: the only saturated family on the page */
+  --p-low: oklch(56% 0.035 250);
+  --p-normal: oklch(54% 0.095 205);
+  --p-high: oklch(62% 0.145 62);
+  --p-urgent: oklch(54% 0.195 27);
+  --p-low-bg: oklch(94% 0.012 250);
+  --p-normal-bg: oklch(94% 0.03 205);
+  --p-high-bg: oklch(94.5% 0.045 70);
+  --p-urgent-bg: oklch(94% 0.05 27);
+
+  --warn-bg: oklch(96% 0.045 85);
+  --warn-line: oklch(80% 0.09 75);
+  --warn-ink: oklch(40% 0.08 62);
+  --track: oklch(91% 0.008 252);
+
+  --gutter: clamp(24px, 10vw, 180px);
+  --measure: 72ch;
+
+  --duration-fast: 130ms;
+  --duration-normal: 350ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: oklch(20% 0.004 265);
+    --panel: oklch(23.5% 0.005 265);
+    --panel-2: oklch(26.5% 0.006 265);
+    --line: oklch(33% 0.006 265);
+    --line-soft: oklch(27.5% 0.005 265);
+    --ink: oklch(94% 0.005 265);
+    --ink-2: oklch(76% 0.007 265);
+    --ink-3: oklch(68% 0.007 265);
+
+    --brand: oklch(72% 0.13 272);
+    --brand-ink: oklch(15% 0.02 260);
+    --brand-soft: oklch(31% 0.045 270);
+
+    --p-low: oklch(70% 0.03 250);
+    --p-normal: oklch(72% 0.11 200);
+    --p-high: oklch(78% 0.14 68);
+    --p-urgent: oklch(70% 0.17 27);
+    --p-low-bg: oklch(27% 0.018 250);
+    --p-normal-bg: oklch(28% 0.045 200);
+    --p-high-bg: oklch(29% 0.055 68);
+    --p-urgent-bg: oklch(29% 0.07 27);
+
+    --warn-bg: oklch(27% 0.05 80);
+    --warn-line: oklch(45% 0.08 75);
+    --warn-ink: oklch(83% 0.09 82);
+    --track: oklch(29.5% 0.005 265);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: oklch(20% 0.004 265);
+  --panel: oklch(23.5% 0.005 265);
+  --panel-2: oklch(26.5% 0.006 265);
+  --line: oklch(33% 0.006 265);
+  --line-soft: oklch(27.5% 0.005 265);
+  --ink: oklch(94% 0.005 265);
+  --ink-2: oklch(76% 0.007 265);
+  --ink-3: oklch(68% 0.007 265);
+
+  --brand: oklch(72% 0.13 272);
+  --brand-ink: oklch(15% 0.02 260);
+  --brand-soft: oklch(31% 0.045 270);
+
+  --p-low: oklch(70% 0.03 250);
+  --p-normal: oklch(72% 0.11 200);
+  --p-high: oklch(78% 0.14 68);
+  --p-urgent: oklch(70% 0.17 27);
+  --p-low-bg: oklch(27% 0.018 250);
+  --p-normal-bg: oklch(28% 0.045 200);
+  --p-high-bg: oklch(29% 0.055 68);
+  --p-urgent-bg: oklch(29% 0.07 27);
+
+  --warn-bg: oklch(27% 0.05 80);
+  --warn-line: oklch(45% 0.08 75);
+  --warn-ink: oklch(83% 0.09 82);
+  --track: oklch(29.5% 0.005 265);
+}
+
+/* shadcn's semantic names, pointed at the tokens above, so every component
+   picks up this palette without per-component overrides. */
+:root,
+:root[data-theme="dark"] {
+  --background: var(--ground);
+  --foreground: var(--ink);
+  --card: var(--panel);
+  --card-foreground: var(--ink);
+  --popover: var(--panel);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-ink);
+  --secondary: var(--panel-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--track);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--panel-2);
+  --accent-foreground: var(--ink);
+  --destructive: var(--p-urgent);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+  --radius: 0.4375rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: var(--font-inter), system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-track: var(--track);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-line: var(--warn-line);
+  --color-warn-ink: var(--warn-ink);
+  --color-p-low: var(--p-low);
+  --color-p-normal: var(--p-normal);
+  --color-p-high: var(--p-high);
+  --color-p-urgent: var(--p-urgent);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans;
+    color-scheme: light dark;
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 300;
+    /* no mono face on this page, so the data columns rely on these */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* views switch on the hidden attribute; a `display` rule on a view container
+     would override this and stack all three */
+  [hidden] {
+    display: none !important;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  /* the page's negative space: one wrapper owns every side gutter */
+  .gutter {
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cap {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
