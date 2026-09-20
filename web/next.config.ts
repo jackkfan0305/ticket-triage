@@ -7,6 +7,9 @@ import type { NextConfig } from "next";
 // is ever served.
 
 const config: NextConfig = {
+  // Pins the repo root for lib/env.ts. A path, never the secret itself, and
+  // referenced only from server code so it stays out of the client bundle.
+  env: { TRIAGE_REPO_ROOT: path.join(import.meta.dirname, "..") },
   // the repo root, not web/: src/ has to stay inside the root or the imports
   // below cannot resolve
   turbopack: { root: path.join(import.meta.dirname, "..") },
