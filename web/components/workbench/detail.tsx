@@ -33,7 +33,7 @@ function Stat({
   tone?: string;
 }) {
   return (
-    <div>
+    <div data-stat={label.toLowerCase().replace(/\s+/g, "-")}>
       <dt className="num mb-1 block text-[11px] tracking-[0.05em] uppercase text-ink-3">{label}</dt>
       <dd>
         <span className={`num block text-[19px] leading-tight font-medium tracking-tight ${tone ?? "text-ink"}`}>

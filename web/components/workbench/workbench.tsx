@@ -241,7 +241,7 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
               onValueChange={(next) => setFilter((next.at(-1) as FilterKey | undefined) ?? "all")}
               aria-label="Filter tickets by outcome"
               spacing={1}
-              className="flex-1"
+              className="w-auto flex-1 flex-wrap"
             >
               {PRIORITY_FILTERS.map((key) => (
                 <ToggleGroupItem
@@ -249,7 +249,9 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
                   value={key}
                   variant="outline"
                   size="sm"
-                  className="num h-7 rounded-full px-2.5 text-[11px]"
+                  // an explicit colour, not an inherited one: Base UI's toggle
+                  // leaves `color` to inheritance and the engines disagreed
+                  className="num h-7 rounded-full border-line px-2.5 text-[11px] text-ink-3 hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-background"
                 >
                   {key}
                 </ToggleGroupItem>

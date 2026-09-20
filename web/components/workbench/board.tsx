@@ -82,7 +82,9 @@ export function Board({ rows, params, onOpen }: BoardProps) {
                   row.pending ? "opacity-40" : ""
                 }`}
               >
-                <TableCell className="relative min-w-0 py-2.5 pl-3.5">
+                {/* max-w-0 with w-full lets the subject truncate to the column
+                    instead of forcing the table past the viewport */}
+                <TableCell className="relative w-full max-w-0 py-2.5 pl-3.5 whitespace-normal">
                   <span
                     aria-hidden="true"
                     className={`absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-[2px] ${

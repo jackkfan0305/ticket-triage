@@ -52,23 +52,29 @@ export function EvidenceUrgency({ answers, params, verdict }: Props) {
         role="img"
         aria-label={`Urgency ${u.toFixed(4)}, in the ${verdict.isJunk || verdict.isSecurity || verdict.isOutage ? "bypassed" : "current"} band ruler`}
       >
-        {bands.map((band) => {
-          const width = Math.max(0, band.to - band.from);
-          return (
+        {bands.map((band) => (
+          <span
+            key={band.name}
+            aria-hidden="true"
+            className={`absolute top-0 h-3.5 rounded-[2px] opacity-85 ${BAND_TONE[band.name]}`}
+            style={{ left: `${band.from * 100}%`, width: `${Math.max(0, band.to - band.from) * 100}%` }}
+          />
+        ))}
+
+        {/* labels are siblings of the bands, not children: inside the tinted
+            band they would inherit its opacity and lose contrast */}
+        {bands
+          .filter((band) => band.to - band.from > 0.08)
+          .map((band) => (
             <span
               key={band.name}
               aria-hidden="true"
-              className={`absolute top-0 h-3.5 rounded-[2px] opacity-85 ${BAND_TONE[band.name]}`}
-              style={{ left: `${band.from * 100}%`, width: `${width * 100}%` }}
+              className="cap absolute top-[17px] text-[11px] font-normal tracking-[0.04em] text-ink-3"
+              style={{ left: `${band.from * 100}%` }}
             >
-              {width > 0.08 && (
-                <span className="cap absolute top-[17px] left-0 text-[11px] font-normal tracking-[0.04em] text-ink-3">
-                  {band.name}
-                </span>
-              )}
+              {band.name}
             </span>
-          );
-        })}
+          ))}
         <span
           aria-hidden="true"
           className="absolute top-[-4px] -left-px h-[21px] w-0.5 rounded-[1px] bg-ink motion-safe:transition-transform motion-safe:duration-[--duration-normal] motion-safe:ease-[--ease-out-expo] after:absolute after:-top-1 after:-left-[3px] after:border-4 after:border-transparent after:border-t-ink after:content-['']"

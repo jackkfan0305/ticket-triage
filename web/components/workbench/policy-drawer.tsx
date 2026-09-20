@@ -107,6 +107,7 @@ function Knobs({ groups, params, onChange }: { groups: typeof PRIMARY } & Drawer
                 </div>
                 <Slider
                   id={id}
+                  aria-label={`${group}: ${knob.label}`}
                   value={value}
                   min={knob.min}
                   max={knob.max}

@@ -35,11 +35,14 @@
   --brand-ink: oklch(99% 0 0);
   --brand-soft: oklch(93% 0.035 268);
 
-  /* the four priority bands: the only saturated family on the page */
-  --p-low: oklch(56% 0.035 250);
-  --p-normal: oklch(54% 0.095 205);
-  --p-high: oklch(62% 0.145 62);
-  --p-urgent: oklch(54% 0.195 27);
+  /* The four priority bands: the only saturated family on the page. Lightness
+     here is solved, not picked: each one clears 4.5:1 against ground, panel,
+     panel-2 and its own chip tint. The mockup's values did not (--p-high read
+     3.37:1 on panel-2), so tests/contrast.test.ts guards them. */
+  --p-low: oklch(52% 0.035 250);
+  --p-normal: oklch(51% 0.095 205);
+  --p-high: oklch(53% 0.145 62);
+  --p-urgent: oklch(53.5% 0.195 27);
   --p-low-bg: oklch(94% 0.012 250);
   --p-normal-bg: oklch(94% 0.03 205);
   --p-high-bg: oklch(94.5% 0.045 70);

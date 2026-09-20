@@ -7,6 +7,9 @@ import type { NextConfig } from "next";
 loadEnvConfig(path.join(process.cwd(), ".."));
 
 const config: NextConfig = {
+  // the repo root, not web/: src/ has to stay inside the root or the imports
+  // below cannot resolve
+  turbopack: { root: path.join(import.meta.dirname, "..") },
   // web/ is its own package, so src/triage/policy.ts sits outside the Next root.
   // externalDir lets the compiler pull it in instead of copying the file.
   experimental: { externalDir: true },
