@@ -27,7 +27,7 @@ export function LatencyRail({ samples, wallMs, total }: RailProps) {
         </h2>
         {stats === null ? (
           <p className="m-0 text-[11.5px] text-ink-3">
-            No live run yet. Select Run live to fan out {total} requests, eight in flight.
+            No live run yet. Select Run live to fan out {total} requests through a bounded pool.
           </p>
         ) : (
           <dl className="m-0 flex flex-wrap gap-x-4 gap-y-1 num text-[11px] text-ink-3">

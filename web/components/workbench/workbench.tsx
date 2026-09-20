@@ -15,7 +15,16 @@ import { Detail } from "./detail";
 import { LatencyRail } from "./latency-rail";
 import { PolicyDrawer } from "./policy-drawer";
 
-/** Eight in flight. Firing sixty at once turns every latency into queue wait. */
+/**
+ * Eight in flight. Firing sixty at once turns every latency into queue wait.
+ *
+ * Over HTTP/1.1 the browser caps concurrent connections to one origin at six,
+ * so a local run reaches six however high this goes: measured at 5.94 for 24
+ * requests of a known 1s each, and 5.63 across a real 60-ticket run. Raising
+ * this number buys nothing until the app is served over HTTP/2, where the cap
+ * lifts and eight becomes real. The per-ticket latency stays honest either
+ * way, since the route times askJev alone and socket queueing sits outside it.
+ */
 const POOL_SIZE = 8;
 
 type View = "index" | "detail" | "compose";

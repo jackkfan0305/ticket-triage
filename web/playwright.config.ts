@@ -22,7 +22,12 @@ export default defineConfig({
     // the production build, so the assertions see what ships
     command: `bun run build && bun run start --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse. A server left running from an earlier build serves HTML
+    // referencing chunk names the current build no longer has; the page 500s
+    // on its scripts, never hydrates, and every click silently does nothing.
+    // That reads as an application bug and cost two debugging detours before
+    // the cause was found. The rebuild takes about two seconds.
+    reuseExistingServer: false,
     timeout: 180_000,
   },
 });
