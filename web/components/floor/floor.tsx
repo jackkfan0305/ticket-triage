@@ -49,8 +49,6 @@ type FloorProps = {
   filter: FilterKey;
   onFilter: (filter: FilterKey) => void;
   poolSize: number;
-  /** playback speed for the ticket flights; the model's own latency is untouched */
-  speed?: number;
 };
 
 const makeBodies = (): Body[] =>
@@ -81,7 +79,7 @@ const FLOOR: { bodies: Body[]; view: View | null; userMoved: boolean } = {
   userMoved: false,
 };
 
-export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, speed = 1 }: FloorProps) {
+export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize }: FloorProps) {
   const viewport = useRef<HTMLDivElement>(null);
   const world = useRef<HTMLDivElement>(null);
   const routes = useRef<SVGSVGElement>(null);
@@ -94,8 +92,6 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
   const dragged = useRef(false);
   const reduced = useRef(false);
   const inFlight = useRef(0);
-  const speedRef = useRef(speed);
-  speedRef.current = speed;
   const onZoomRef = useRef(onZoom);
   onZoomRef.current = onZoom;
 
@@ -107,6 +103,11 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
   flown.current ??= new Set(landed);
 
   const [scope, setScope] = useState<string | null>(null);
+  /** the same box twice is a close: one toggle for the card and its name button */
+  const toggleScope = useCallback(
+    (id: string) => setScope((current) => (current === id ? null : id)),
+    [],
+  );
 
   const bodyOf = useCallback((id: string) => FLOOR.bodies.find((body) => body.id === id), []);
 
@@ -303,7 +304,9 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
 
       const card = target?.closest<HTMLElement>("[data-card]");
       const id = card?.dataset.card;
-      pressed = pointers.size === 1 ? (id ?? null) : null;
+      // the name button toggles the scope itself; letting the press do it too
+      // would flip it twice and leave the sheet where it was
+      pressed = pointers.size === 1 && !interactive ? (id ?? null) : null;
 
       // the pile under the pointer scrolls itself, so neither the card nor the
       // camera moves while a finger or a mouse drags inside it
@@ -389,7 +392,7 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
       releaseHeld();
       // a press that never travelled is a click on the card, whatever part of
       // it was under the pointer; a throw or a scroll is not
-      if (pressed && !dragged.current) setScope(pressed);
+      if (pressed && !dragged.current) toggleScope(pressed);
       pressed = null;
       scrolling = null;
       panFrom = null;
@@ -462,7 +465,7 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
       surface.removeEventListener("wheel", onWheel);
       surface.removeEventListener("keydown", onKeyDown);
     };
-  }, [applyView, bodyOf, frameAll, zoomBy]);
+  }, [applyView, bodyOf, frameAll, zoomBy, toggleScope]);
 
   // frame on first paint, and on resize until the reader takes the camera over
   useEffect(() => {
@@ -480,12 +483,14 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
 
   // ---------------------------------------------------------------- flight
   useEffect(() => {
-    const live = new Set(resolved.map((entry) => entry.row.id));
-    // a reset clears the evidence, so those tickets are free to fly again
+    // A reset clears the evidence, so those tickets are free to fly again. The
+    // signal is a ticket that is back to having no answer, not one that left
+    // the list: a filter also takes rows away, and a hidden ticket has flown.
+    const cleared = new Set(waiting.map((row) => row.id));
     const seen = flown.current as Set<string>;
-    for (const id of seen) if (!live.has(id)) seen.delete(id);
+    for (const id of seen) if (cleared.has(id)) seen.delete(id);
     setLanded((current) => {
-      const stale = [...current].filter((id) => !live.has(id));
+      const stale = [...current].filter((id) => cleared.has(id));
       if (stale.length === 0) return current;
       const next = new Set(current);
       for (const id of stale) next.delete(id);
@@ -496,7 +501,9 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
       setLanded((current) => new Set(current).add(id));
       if (reduced.current) return;
       const element = elements.current.get(node);
-      if (!element) return;
+      // a card already raised under the pointer keeps its lift; the arrival
+      // pulse would end by dropping it back to rest under the reader's hand
+      if (!element || element.matches(":hover")) return;
       gsap.fromTo(
         element,
         { scale: 1 },
@@ -525,14 +532,13 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
         },
         subject: row.subject,
         priority: verdict.priority,
-        speed: speedRef.current,
         onLand: () => {
           inFlight.current -= 1;
           settle(row.id, node);
         },
       });
     }
-  }, [resolved, bodyOf]);
+  }, [resolved, waiting, bodyOf]);
 
   // ----------------------------------------------------------------- sheet
   const register = useCallback((id: string, element: HTMLElement | null) => {
@@ -555,7 +561,8 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
         team: null,
         urgency: null,
         latencyMs: null,
-        pending: true,
+        // the run has to have asked before this ticket is waiting on an answer
+        status: row.pending ? "asking" : "queued",
         transit: false,
       }));
     }
@@ -568,7 +575,7 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
         team: verdict.team,
         urgency: verdict.urgency,
         latencyMs: row.live?.latencyMs ?? null,
-        pending: false,
+        status: "routed" as const,
         transit: !landed.has(row.id),
       }))
       .reverse();
@@ -599,7 +606,7 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
             box={HOME[INBOX_ID] ?? { x: 0, y: 0, w: 300, h: 800 }}
             waiting={waiting}
             register={register}
-            onOpenScope={setScope}
+            onOpenScope={toggleScope}
             poolSize={poolSize}
           />
 
@@ -610,7 +617,7 @@ export function Floor({ ref, onZoom, rows, params, filter, onFilter, poolSize, s
               box={HOME[id] ?? { x: 0, y: 0, w: 300, h: 240 }}
               arrivals={arrivals.get(id) ?? []}
               register={register}
-              onOpenScope={setScope}
+              onOpenScope={toggleScope}
             />
           ))}
         </div>

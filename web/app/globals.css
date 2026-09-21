@@ -25,6 +25,7 @@
   --panel: oklch(100% 0 0);
   --panel-2: oklch(96% 0.005 252);
   --line: oklch(89% 0.008 252);
+  --sunken: oklch(94% 0.006 252);
   --line-soft: oklch(93.5% 0.006 252);
   --ink: oklch(26% 0.02 258);
   --ink-2: oklch(48% 0.016 256);
@@ -58,6 +59,16 @@
   --floor-dot: oklch(88% 0.008 252);
   --route: oklch(78% 0.022 258);
 
+  /* Six steps, one per size tier the surface has: page title, content title or
+     large numeral, section heading, body copy, secondary text, label. The last
+     one is the spec's floor and nothing on the page may render under it. */
+  --type-display: 20px;
+  --type-title: 17px;
+  --type-heading: 14px;
+  --type-body: 13px;
+  --type-meta: 12px;
+  --type-micro: 11px;
+
   --gutter: clamp(24px, 10vw, 180px);
   --measure: 72ch;
 
@@ -72,6 +83,7 @@
     --panel: oklch(23.5% 0.005 265);
     --panel-2: oklch(26.5% 0.006 265);
     --line: oklch(33% 0.006 265);
+    --sunken: oklch(16% 0.004 265);
     --line-soft: oklch(27.5% 0.005 265);
     --ink: oklch(94% 0.005 265);
     --ink-2: oklch(76% 0.007 265);
@@ -106,6 +118,7 @@
   --panel: oklch(23.5% 0.005 265);
   --panel-2: oklch(26.5% 0.006 265);
   --line: oklch(33% 0.006 265);
+  --sunken: oklch(16% 0.004 265);
   --line-soft: oklch(27.5% 0.005 265);
   --ink: oklch(94% 0.005 265);
   --ink-2: oklch(76% 0.007 265);
@@ -189,6 +202,7 @@
   --color-line-soft: var(--line-soft);
   --color-panel: var(--panel);
   --color-panel-2: var(--panel-2);
+  --color-sunken: var(--sunken);
   --color-track: var(--track);
   --color-floor: var(--floor);
   --color-floor-dot: var(--floor-dot);
@@ -202,6 +216,13 @@
   --color-p-normal: var(--p-normal);
   --color-p-high: var(--p-high);
   --color-p-urgent: var(--p-urgent);
+
+  --text-display: var(--type-display);
+  --text-title: var(--type-title);
+  --text-heading: var(--type-heading);
+  --text-body: var(--type-body);
+  --text-meta: var(--type-meta);
+  --text-micro: var(--type-micro);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -229,7 +250,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-size: 14px;
+    font-size: var(--type-body);
     line-height: 1.5;
     font-weight: 300;
     /* no mono face on this page, so the data columns rely on these */
@@ -257,12 +278,22 @@
     padding-inline: var(--gutter);
   }
 
+  /* A field cut into the page: a well darker than the ground, the shadow
+     falling from its top edge and one lit pixel below it. Paired with
+     `bg-sunken`, which carries the fill. */
+  .engrave {
+    box-shadow:
+      inset 0 1px 2px color-mix(in oklab, black 24%, transparent),
+      inset 0 0 0 1px color-mix(in oklab, black 6%, transparent),
+      0 1px 0 color-mix(in oklab, white 7%, transparent);
+  }
+
   .num {
     font-variant-numeric: tabular-nums;
   }
 
   .cap {
-    font-size: 11px;
+    font-size: var(--type-micro);
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;

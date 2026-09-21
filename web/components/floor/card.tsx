@@ -1,11 +1,12 @@
 "use client";
 
 import type { Priority } from "../../../src/types";
+import { gsap, prefersReducedMotion } from "@/lib/motion";
 import type { Row, Verdict } from "@/lib/rows";
-import { PRIORITY_STRIPE } from "../workbench/priority";
+import { PriorityMarker } from "../workbench/priority-marker";
 import { INBOX_ID, NONE_ID, nodeName, nodeOwns, type Box } from "./layout";
 
-/** Heaviest first, so the bar reads as a severity profile left to right. */
+/** Highest priority first in each team's summary. */
 export const MIX_ORDER: readonly Priority[] = ["urgent", "high", "normal", "low"];
 
 /**
@@ -31,6 +32,25 @@ type ShellProps = {
 };
 
 /**
+ * A card rises to meet the pointer: a short overshoot on the way up, a plain
+ * settle on the way down. It is a GSAP tween rather than a CSS transition
+ * because the frame loop writes x, y and rotation to this same element; GSAP
+ * holds the transform components apart, so the two never fight, while a CSS
+ * transition on `transform` would smear every drag.
+ *
+ * A finger has no hover, and leaving a tapped card scaled would be a bug.
+ */
+const pop = (event: React.PointerEvent<HTMLElement>, over: boolean) => {
+  if (event.pointerType === "touch" || prefersReducedMotion()) return;
+  gsap.to(event.currentTarget, {
+    scale: over ? 1.025 : 1,
+    duration: over ? 0.36 : 0.24,
+    ease: over ? "back.out(3)" : "power2.out",
+    overwrite: "auto",
+  });
+};
+
+/**
  * The body of every card on the floor. Position comes from the frame loop as a
  * GSAP transform, never from layout, so a drag never reflows the page.
  */
@@ -40,8 +60,10 @@ function Shell({ id, box, register, labelledBy, className = "", children }: Shel
       data-card={id}
       aria-labelledby={labelledBy}
       ref={(el) => register(id, el)}
+      onPointerEnter={(event) => pop(event, true)}
+      onPointerLeave={(event) => pop(event, false)}
       style={{ width: box.w, height: box.h, willChange: "transform" }}
-      className={`card no-select absolute top-0 left-0 z-[2] flex touch-none cursor-grab flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-sm transition-shadow duration-[--duration-fast] data-[held=true]:z-[3] data-[held=true]:cursor-grabbing data-[held=true]:shadow-xl ${className}`}
+      className={`card no-select absolute top-0 left-0 z-[2] flex touch-none cursor-grab flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-sm transition-shadow duration-[--duration-fast] hover:z-[3] hover:shadow-lg data-[held=true]:z-[3] data-[held=true]:cursor-grabbing data-[held=true]:shadow-xl ${className}`}
     >
       {children}
     </section>
@@ -110,16 +132,20 @@ export function TeamCard({ id, box, arrivals, register, onOpenScope }: TeamCardP
       </p>
 
       <div
-        role="img"
-        aria-label={`${arrivals.length} tickets: ${MIX_ORDER.map((p, i) => `${mix[i]} ${p}`).join(", ")}`}
-        className="mx-3.5 flex h-[3px] flex-none gap-px overflow-hidden rounded-sm bg-track"
+        role="group"
+        aria-label="Tickets by priority"
+        className="mx-3.5 flex flex-none items-center gap-4 border-b border-line-soft pb-2 text-ink"
       >
         {MIX_ORDER.map((priority, index) => (
-          <i
+          <span
             key={priority}
-            style={{ flexGrow: mix[index] }}
-            className={`block motion-safe:transition-[flex-grow] motion-safe:duration-[--duration-normal] motion-safe:ease-[--ease-out-expo] ${PRIORITY_STRIPE[priority]}`}
-          />
+            title={`${mix[index]} ${priority} priority`}
+            className="inline-flex items-center gap-1 text-micro"
+          >
+            <PriorityMarker priority={priority} />
+            <span className="num">{mix[index]}</span>
+            <span className="sr-only"> {priority} priority</span>
+          </span>
         ))}
       </div>
 
@@ -135,10 +161,10 @@ export function TeamCard({ id, box, arrivals, register, onOpenScope }: TeamCardP
             title={`${row.id} · ${verdict.priority} · urgency ${verdict.urgency.toFixed(3)}`}
             className="flex flex-none items-center gap-[7px] rounded-full bg-panel-2 px-2 py-[3px] text-[11px] text-ink-2"
           >
-            <i
-              aria-hidden="true"
-              className={`size-[5px] flex-none rounded-full ${PRIORITY_STRIPE[verdict.priority]}`}
-            />
+            <span className="flex-none text-ink">
+              <PriorityMarker priority={verdict.priority} />
+            </span>
+            <span className="sr-only">{verdict.priority} priority. </span>
             <span className="min-w-0 flex-1 truncate">{row.subject || "(untitled)"}</span>
             <span className="num flex-none text-[9.5px] text-ink-3">{verdict.urgency.toFixed(2)}</span>
           </li>

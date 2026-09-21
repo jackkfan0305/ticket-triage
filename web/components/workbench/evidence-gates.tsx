@@ -23,11 +23,11 @@ export function EvidenceGates({ answers, params, verdict }: Props) {
   };
 
   return (
-    <section className="mb-7">
-      <h3 className="cap mb-3 flex items-baseline gap-2 text-ink-3">
-        Gates
-        <span className="text-[11px] font-light tracking-normal normal-case text-ink-3">
-          noul · tick marks the threshold
+    <section className="border-t border-line-soft pt-5">
+      <h3 className="mb-4 flex flex-wrap items-baseline gap-2 text-heading font-medium text-balance">
+        Priority checks
+        <span className="text-micro font-light tracking-normal normal-case text-ink-3">
+          Tick marks the cutoff
         </span>
       </h3>
 
@@ -38,29 +38,27 @@ export function EvidenceGates({ answers, params, verdict }: Props) {
         return (
           <div
             key={key}
-            className="mb-2.5 grid items-center gap-3 sm:grid-cols-[minmax(0,11.5rem)_minmax(0,1fr)_3.25rem]"
+            className="mb-2.5 grid items-center gap-3 grid-cols-[minmax(0,8rem)_minmax(0,1fr)_2.5rem]"
           >
-            <span className="text-xs text-ink-2">{GATE_LABEL[key]}</span>
+            <span className="text-meta text-ink-2">{key === "has_request" ? "Actionable request" : GATE_LABEL[key]}</span>
             <Progress
               value={value * 100}
               aria-label={`${GATE_LABEL[key]}, threshold ${threshold.toFixed(2)}`}
               mark={threshold * 100}
               className="block"
-              // has_request is the one gate where a high reading is the good
-              // outcome, so a passing bar reads as normal rather than neutral
-              indicatorClassName={hit ? "bg-p-urgent" : key === "has_request" ? "bg-p-normal" : "bg-p-low"}
+              indicatorClassName={hit ? "bg-ink" : "bg-ink-3"}
             />
             <Counter
               value={value}
-              className={`num text-right text-[11px] tabular-nums ${hit ? "font-medium text-p-urgent" : "text-ink-2"}`}
+              className={`num text-right text-micro tabular-nums ${hit ? "font-medium text-ink" : "text-ink-2"}`}
             />
           </div>
         );
       })}
 
       {verdict.isJunk && (
-        <p className="mt-3 max-w-[var(--measure)] border-l-2 border-p-urgent pl-2 text-[11.5px] leading-relaxed text-ink-3">
-          has_request fell below junkBelow, so the junk branch fired and everything below is bypassed.
+        <p className="mt-3 max-w-[var(--measure)] border-l-2 border-ink pl-2 text-meta leading-relaxed text-ink-3">
+          The request score is below the cutoff. Urgency and team suggestions do not affect the decision.
         </p>
       )}
     </section>

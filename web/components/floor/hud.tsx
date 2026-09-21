@@ -1,16 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { cn } from "cn";
 import {
-  Gauge,
   LayoutGrid,
   Maximize,
   Minus,
   Moon,
   Pause,
-  PenLine,
   Play,
   Plus,
   RotateCcw,
@@ -18,7 +14,7 @@ import {
   Sun,
 } from "lucide-react";
 import type { PolicyParams } from "../../../src/triage/policy";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -27,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LatencyRail } from "../workbench/latency-rail";
+import { ComposeDialog } from "../workbench/compose-dialog";
 import { PolicyDrawer } from "../workbench/policy-drawer";
 
 export type RunState = "ready" | "running" | "paused" | "done";
@@ -37,10 +34,6 @@ const RUN_LABEL: Record<RunState, string> = {
   paused: "Resume",
   done: "Done",
 };
-
-/** Playback speed for the ticket flights. The model's own latency is measured
- *  by the route and is not touched by this. */
-export const SPEEDS = [1, 2, 4] as const;
 
 /** How much of the eval set is on the floor. The run classifies exactly what
  *  is on the floor, so this picks the sample and the workload at once. */
@@ -60,8 +53,6 @@ type HudProps = {
   runState: RunState;
   onRun: () => void;
   onReset: () => void;
-  speed: number;
-  onSpeed: () => void;
   dev: boolean;
   onDev: () => void;
   count: number;
@@ -115,8 +106,6 @@ export function Hud({
   runState,
   onRun,
   onReset,
-  speed,
-  onSpeed,
   dev,
   onDev,
   count,
@@ -160,7 +149,7 @@ export function Hud({
             <SelectTrigger
               size="sm"
               aria-label="How many tickets on the floor"
-              className="num border-line text-[11px] text-ink-2 data-[size=sm]:rounded-full"
+              className="num border-transparent bg-transparent text-[11px] text-ink-2 data-[size=sm]:rounded-full dark:bg-transparent dark:hover:bg-panel-2"
             >
               <SelectValue />
             </SelectTrigger>
@@ -183,17 +172,6 @@ export function Hud({
               ))}
             </SelectContent>
           </Select>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSpeed}
-            className="num gap-1.5 rounded-full"
-            aria-label={`Playback speed, ${speed} times`}
-          >
-            <Gauge aria-hidden="true" className="size-3.5" />
-            {speed}×
-          </Button>
 
           <Button
             size="sm"
@@ -219,14 +197,7 @@ export function Hud({
             <RotateCcw aria-hidden="true" className="size-3.5" />
           </Button>
 
-          {/* it goes somewhere, so it is a link, wearing the buttons' clothes */}
-          <Link
-            href="/compose"
-            aria-label="Write your own ticket"
-            className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }), "rounded-full")}
-          >
-            <PenLine aria-hidden="true" className="size-3.5" />
-          </Link>
+          <ComposeDialog />
 
           <Button
             variant="ghost"

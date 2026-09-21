@@ -25,7 +25,7 @@ const PRIORITY_CHIP: Record<Priority, string> = {
 export function PriorityChip({ priority }: { priority: Priority }) {
   return (
     <Badge
-      className={`rounded border-0 px-1.5 py-0.5 text-[11px] font-normal tracking-[0.04em] uppercase ${PRIORITY_CHIP[priority]}`}
+      className={`rounded border-0 px-1.5 py-0.5 text-micro font-normal tracking-[0.04em] uppercase ${PRIORITY_CHIP[priority]}`}
     >
       {priority}
     </Badge>

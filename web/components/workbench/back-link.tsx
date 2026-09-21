@@ -1,20 +1,14 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { cn } from "cn";
-import { buttonVariants } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
-/**
- * One way back, the same on every surface that has one: a round target at 40px,
- * which is a comfortable hit rather than the 24px floor.
- */
 export function BackLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      aria-label={label}
-      className={cn(buttonVariants({ variant: "outline", size: "icon" }), "size-10 rounded-full")}
+      className="group inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-sm pe-2 text-meta font-medium text-ink-2 hover:text-ink"
     >
-      <ArrowLeft aria-hidden="true" className="size-4" />
+      <ChevronLeft aria-hidden="true" className="size-4" />
+      <span className="decoration-line underline-offset-4 group-hover:underline">{label}</span>
     </Link>
   );
 }

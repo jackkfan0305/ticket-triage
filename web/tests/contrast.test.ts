@@ -76,7 +76,7 @@ const THEMES = {
 };
 
 /** Every text token, against every surface it is actually rendered on. */
-const SURFACES = ["--ground", "--panel", "--panel-2"] as const;
+const SURFACES = ["--ground", "--panel", "--panel-2", "--sunken"] as const;
 const TEXT = ["--ink", "--ink-2", "--ink-3", "--p-low", "--p-normal", "--p-high", "--p-urgent"] as const;
 
 /** Priority chips put their own text on their own tinted background. */

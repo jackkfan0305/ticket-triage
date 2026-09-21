@@ -35,7 +35,7 @@ type ComposeProps = {
 /** A counter that turns red on the cap the route would reject. */
 function Counted({ length, max }: { length: number; max: number }) {
   return (
-    <p className={`num mt-1.5 text-end text-[11px] ${length > max ? "text-p-urgent" : "text-ink-3"}`}>
+    <p className={`num mt-1.5 text-end text-micro ${length > max ? "text-p-urgent" : "text-ink-3"}`}>
       {length} / {max}
     </p>
   );
@@ -51,21 +51,17 @@ export function Compose({ busy, error, onSubmit }: ComposeProps) {
 
   return (
     <>
-      <p className="mx-auto m-0 mb-6 max-w-[54ch] text-center text-[13px] leading-relaxed text-balance text-ink-2">
-        Paste anything a customer might send. It goes through the same seven questions and the same
-        policy as the eval set, and comes back with the full evidence behind the verdict.
-      </p>
-
       <form
         onSubmit={(event) => {
           event.preventDefault();
           if (busy || empty || overSubject || overBody) return;
           onSubmit({ subject: subject.trim(), body: body.trim() });
         }}
-        className="rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5"
       >
+        {/* no card: the two fields are cut into the page itself, and the label
+            above each one is the only structure they need */}
         <div className="mb-5">
-          <Label htmlFor="compose-subject" className="cap mb-1.5 block text-ink-3">
+          <Label htmlFor="compose-subject" className="cap mb-2 block text-ink-3">
             Subject
           </Label>
           <Input
@@ -74,13 +70,13 @@ export function Compose({ busy, error, onSubmit }: ComposeProps) {
             maxLength={SUBJECT_MAX}
             placeholder="Cannot log in after SSO change"
             onChange={(event) => setSubject(event.target.value)}
-            className="bg-panel-2"
+            className="engrave h-10 rounded-xl border-line-soft bg-sunken px-3.5 md:text-body dark:bg-sunken"
           />
           <Counted length={subject.length} max={SUBJECT_MAX} />
         </div>
 
         <div className="mb-5">
-          <Label htmlFor="compose-body" className="cap mb-1.5 block text-ink-3">
+          <Label htmlFor="compose-body" className="cap mb-2 block text-ink-3">
             Body
           </Label>
           <Textarea
@@ -90,20 +86,13 @@ export function Compose({ busy, error, onSubmit }: ComposeProps) {
             rows={8}
             placeholder="Describe the problem the way a customer would…"
             onChange={(event) => setBody(event.target.value)}
-            className="min-h-44 bg-panel-2"
+            className="engrave min-h-52 rounded-xl border-line-soft bg-sunken px-3.5 py-3 leading-relaxed md:text-body dark:bg-sunken"
           />
           <Counted length={body.length} max={BODY_MAX} />
         </div>
 
-        {/* the action stays in the flow of the card, and stacks before it
-            crowds the hint beside it */}
-        <div className="flex flex-col-reverse items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-end">
-          {empty && (
-            <span className="text-center text-xs text-ink-3 sm:me-auto sm:text-start">
-              Body is required.
-            </span>
-          )}
-          <Button type="submit" disabled={busy || empty || overSubject || overBody}>
+        <div className="flex justify-end">
+          <Button type="submit" className="text-body" disabled={busy || empty || overSubject || overBody}>
             {busy ? "Classifying…" : "Classify"}
           </Button>
         </div>
@@ -115,8 +104,8 @@ export function Compose({ busy, error, onSubmit }: ComposeProps) {
         )}
       </form>
 
-      <section aria-labelledby="samples-heading" className="mt-8">
-        <h2 id="samples-heading" className="cap mb-2.5 text-center text-ink-3">
+      <section aria-labelledby="samples-heading" className="mt-10">
+        <h2 id="samples-heading" className="cap mb-2.5 text-ink-3">
           Or start from one of these
         </h2>
         {/* three side by side while each still holds a readable line, one
@@ -130,9 +119,9 @@ export function Compose({ busy, error, onSubmit }: ComposeProps) {
                   setSubject(sample.subject);
                   setBody(sample.body);
                 }}
-                className="flex w-full flex-col gap-1 rounded-xl border border-line bg-panel-2 px-3 py-2.5 text-start text-xs text-ink-2 transition-colors hover:border-brand hover:text-ink"
+                className="engrave flex w-full flex-col gap-1 rounded-xl border border-line-soft bg-sunken px-3 py-2.5 text-start text-meta text-ink-2 transition-colors hover:border-brand hover:text-ink"
               >
-                <span className="num text-[10.5px] tracking-[0.04em] text-ink-3">
+                <span className="num text-micro tracking-[0.04em] text-ink-3">
                   sample {index + 1}
                 </span>
                 <span className="line-clamp-3 leading-snug">{sample.subject}</span>
