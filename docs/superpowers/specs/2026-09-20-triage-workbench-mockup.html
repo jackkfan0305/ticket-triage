@@ -1,0 +1,1296 @@
+<title>Triage Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  --ground:oklch(97.5% 0.004 250);
+  --panel:oklch(100% 0 0);
+  --panel-2:oklch(96% 0.005 252);
+  --line:oklch(89% 0.008 252);
+  --line-soft:oklch(93.5% 0.006 252);
+  --ink:oklch(26% 0.02 258);
+  --ink-2:oklch(48% 0.016 256);
+  --ink-3:oklch(51% 0.014 254);
+  --accent:oklch(50% 0.14 268);
+  --accent-soft:oklch(93% 0.035 268);
+  --p-low:oklch(56% 0.035 250);
+  --p-normal:oklch(54% 0.095 205);
+  --p-high:oklch(62% 0.145 62);
+  --p-urgent:oklch(54% 0.195 27);
+  --p-low-bg:oklch(94% 0.012 250);
+  --p-normal-bg:oklch(94% 0.03 205);
+  --p-high-bg:oklch(94.5% 0.045 70);
+  --p-urgent-bg:oklch(94% 0.05 27);
+  --warn-bg:oklch(96% 0.045 85);
+  --warn-line:oklch(80% 0.09 75);
+  --warn-ink:oklch(40% 0.08 62);
+  --track:oklch(91% 0.008 252);
+  --shadow:0 1px 2px oklch(50% 0.02 258 / 0.07), 0 4px 14px oklch(50% 0.02 258 / 0.05);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* one family throughout; tabular figures keep the data columns aligned */
+  --mono:var(--sans);
+  --r:7px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:oklch(20% 0.004 265);
+    --panel:oklch(23.5% 0.005 265);
+    --panel-2:oklch(26.5% 0.006 265);
+    --line:oklch(33% 0.006 265);
+    --line-soft:oklch(27.5% 0.005 265);
+    --ink:oklch(94% 0.005 265);
+    --ink-2:oklch(76% 0.007 265);
+    --ink-3:oklch(68% 0.007 265);
+    --accent:oklch(72% 0.13 272);
+    --accent-soft:oklch(31% 0.045 270);
+    --p-low:oklch(70% 0.03 250);
+    --p-normal:oklch(72% 0.11 200);
+    --p-high:oklch(78% 0.14 68);
+    --p-urgent:oklch(70% 0.17 27);
+    --p-low-bg:oklch(27% 0.018 250);
+    --p-normal-bg:oklch(28% 0.045 200);
+    --p-high-bg:oklch(29% 0.055 68);
+    --p-urgent-bg:oklch(29% 0.07 27);
+    --warn-bg:oklch(27% 0.05 80);
+    --warn-line:oklch(45% 0.08 75);
+    --warn-ink:oklch(83% 0.09 82);
+    --track:oklch(29.5% 0.005 265);
+    --shadow:0 1px 2px oklch(0% 0 0 / 0.3), 0 4px 14px oklch(0% 0 0 / 0.22);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:oklch(20% 0.004 265);
+  --panel:oklch(23.5% 0.005 265);
+  --panel-2:oklch(26.5% 0.006 265);
+  --line:oklch(33% 0.006 265);
+  --line-soft:oklch(27.5% 0.005 265);
+  --ink:oklch(94% 0.005 265);
+  --ink-2:oklch(76% 0.007 265);
+  --ink-3:oklch(68% 0.007 265);
+  --accent:oklch(72% 0.13 272);
+  --accent-soft:oklch(31% 0.045 270);
+  --p-low:oklch(70% 0.03 250);
+  --p-normal:oklch(72% 0.11 200);
+  --p-high:oklch(78% 0.14 68);
+  --p-urgent:oklch(70% 0.17 27);
+  --p-low-bg:oklch(27% 0.018 250);
+  --p-normal-bg:oklch(28% 0.045 200);
+  --p-high-bg:oklch(29% 0.055 68);
+  --p-urgent-bg:oklch(29% 0.07 27);
+  --warn-bg:oklch(27% 0.05 80);
+  --warn-line:oklch(45% 0.08 75);
+  --warn-ink:oklch(83% 0.09 82);
+  --track:oklch(29.5% 0.005 265);
+  --shadow:0 1px 2px oklch(0% 0 0 / 0.3), 0 4px 14px oklch(0% 0 0 / 0.22);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--sans);font-size:14px;line-height:1.5;font-weight:300;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.wrap{
+  max-width:1400px;margin:0 auto;
+  padding-inline:clamp(24px,10vw,180px);
+  padding-block:0 72px;
+}
+
+/* ---------- masthead ---------- */
+.mast{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding-block:16px 12px;border-bottom:1px solid var(--line);
+}
+.mast h1{
+  margin:0;font-size:15px;font-weight:500;letter-spacing:-0.01em;
+  display:flex;align-items:baseline;gap:9px;
+}
+.mast h1 .sub{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--ink-3);letter-spacing:0}
+.tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;border:1px solid var(--line);color:var(--ink-2);background:var(--panel-2);
+  white-space:nowrap;
+}
+.tag.live{border-color:var(--p-urgent);color:var(--p-urgent);background:var(--p-urgent-bg)}
+.mast .spacer{flex:1 1 auto}
+.runbtn{
+  border:1px solid var(--accent);background:var(--accent);color:oklch(99% 0 0);
+  padding:7px 13px;border-radius:var(--r);font-weight:500;font-size:12.5px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:filter .15s,transform .08s;
+}
+:root[data-theme="dark"] .runbtn,
+:root:not([data-theme="light"]) .runbtn{color:oklch(15% 0.02 260)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .runbtn{color:oklch(99% 0 0)}}
+.runbtn:hover{filter:brightness(1.1)}
+.runbtn:active{transform:translateY(1px)}
+.runbtn[disabled]{opacity:.5;cursor:default}
+.ghostbtn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink-2);
+  padding:6px 11px;border-radius:var(--r);font-size:12px;font-weight:400;cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.ghostbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- policy drawer ---------- */
+.drawer{margin-top:14px;border-bottom:1px solid var(--line-soft)}
+.drawer > summary{
+  cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:10px;
+  padding-block:10px;color:var(--ink-2);
+}
+.drawer > summary::-webkit-details-marker{display:none}
+.drawer > summary::before{content:"+";font-family:var(--mono);font-size:13px;width:9px;color:var(--ink-3)}
+.drawer[open] > summary::before{content:"\2212"}
+.drawer > summary:hover{color:var(--ink)}
+.dcap{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase}
+.dsum{font-size:11px;color:var(--ink-3)}
+.drawerbody{padding-bottom:16px}
+.drawerbody .params{
+  display:grid;gap:0 32px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));align-items:start;
+}
+
+/* ---------- views ---------- */
+main{display:block;padding-top:6px}
+/* the hidden attribute is what switches views; never override it with display */
+[hidden]{display:none!important}
+
+/* ---------- latency rail ---------- */
+.rail{padding-block:14px;border-bottom:1px solid var(--line-soft)}
+.rail.empty .lat-wrap{display:none}
+.rail.empty .railhead{margin-bottom:0}
+.railhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.railhead h2{margin:0;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-2)}
+.railhead .count{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-transform:none;letter-spacing:0;font-weight:300}
+
+/* ---------- chips (filter toggles + priority badges) ---------- */
+.chip{
+  font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:99px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink-3);
+  transition:color .13s,background-color .13s,border-color .13s;
+}
+.chip:hover{color:var(--ink);border-color:var(--ink-3)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.pchip{
+  font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;font-weight:400;
+  padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;
+}
+.pchip.low{background:var(--p-low-bg);color:var(--p-low)}
+.pchip.normal{background:var(--p-normal-bg);color:var(--p-normal)}
+.pchip.high{background:var(--p-high-bg);color:var(--p-high)}
+.pchip.urgent{background:var(--p-urgent-bg);color:var(--p-urgent)}
+
+/* ---------- toolbar ---------- */
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:20px 10px}
+.toolbar h2{margin:0;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.toolbar h2 .count{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:300;letter-spacing:0;margin-inline-start:6px}
+.toolbar .filters{padding:0;border:0;display:flex;gap:5px;flex-wrap:wrap;flex:1 1 auto}
+.toolbar .ghostbtn{margin-inline-start:auto}
+
+/* ---------- board: every ticket on one page ---------- */
+.boardcols{grid-template-columns:minmax(0,1fr) 84px 148px 74px 74px}
+.boardhead{
+  display:grid;grid-template-columns:minmax(0,1fr) 84px 148px 74px 74px;gap:14px;
+  padding:0 10px 7px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);
+}
+.boardhead span:nth-child(n+2){text-align:right}
+@media (max-width:760px){.boardhead{display:none}}
+
+.board{display:flex;flex-direction:column;gap:2px;padding-top:6px}
+.brow{
+  display:grid;grid-template-columns:minmax(0,1fr) 84px 148px 74px 74px;gap:14px;align-items:center;
+  width:100%;text-align:left;background:transparent;border:0;border-radius:6px;
+  padding:11px 10px;cursor:pointer;position:relative;
+  transition:background-color .13s;
+}
+.brow::before{
+  content:"";position:absolute;inset:7px auto 7px 0;width:3px;border-radius:2px;background:var(--p-low);
+}
+.brow.p-low::before{background:var(--p-low)}
+.brow.p-normal::before{background:var(--p-normal)}
+.brow.p-high::before{background:var(--p-high)}
+.brow.p-urgent::before{background:var(--p-urgent)}
+.brow:hover{background:var(--panel)}
+.brow .tkt{min-width:0;padding-inline-start:10px}
+.brow .id{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.brow .subj{
+  display:block;font-size:13.5px;color:var(--ink);margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.brow .cell{text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.brow .cell.team{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brow .cell.team.untriaged{color:var(--p-high)}
+.brow .pcell{text-align:right}
+.brow.pending{opacity:.4}
+.brow.pending::before{background:var(--track)}
+@media (max-width:760px){
+  .brow{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:10px}
+  .brow .cell.team{grid-column:1;text-align:left}
+  .brow .cell.urg,.brow .cell.lat{display:none}
+}
+
+/* ---------- detail bar ---------- */
+.detailbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:18px 10px}
+.detailbar .spacer{flex:1 1 auto}
+.backbtn{
+  display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink-2);
+  padding:6px 12px;border-radius:var(--r);font-size:12px;cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.backbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- per-ticket stats ---------- */
+.tstats{
+  display:grid;gap:2px 30px;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  padding-block:14px;border-bottom:1px solid var(--line-soft);margin-bottom:16px;
+}
+.tstat .cap{
+  display:block;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:3px;
+}
+.tstat .v{font-family:var(--mono);font-size:19px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.tstat .sub{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:2px}
+
+/* ---------- inspector ---------- */
+.tkt-head{padding-top:12px;padding-bottom:2px}
+.tkt-head .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.tkt-head h3{margin:0;font-size:17px;font-weight:500;letter-spacing:-0.012em;line-height:1.28;text-wrap:balance}
+.tkt-head p{margin:7px 0 0;font-size:13px;line-height:1.55;color:var(--ink-2);max-width:66ch}
+.srcnote{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:8px}
+
+.sec{margin-bottom:18px}
+.sec > h4{
+  margin:0 0 9px;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--ink-3);display:flex;align-items:baseline;gap:8px;
+}
+.sec > h4 .hint{font-family:var(--mono);font-size:11px;letter-spacing:0;text-transform:none;color:var(--ink-3);font-weight:300}
+
+/* gate bars */
+.gate{display:grid;grid-template-columns:196px minmax(0,1fr) 52px;gap:12px;align-items:center;margin-bottom:8px}
+.gate .lbl{font-size:12px;color:var(--ink-2)}
+.gate .bar{position:relative;height:9px;border-radius:3px;background:var(--track);overflow:visible}
+.gate .fill{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--p-low);transition:width .35s cubic-bezier(.16,1,.3,1),background .25s}
+.gate.tripped .fill{background:var(--p-urgent)}
+.gate .thr{
+  position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55;border-radius:1px;
+  transition:left .2s;
+}
+.gate .val{font-family:var(--mono);font-size:11px;text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.gate.tripped .val{color:var(--p-urgent);font-weight:500}
+
+/* score distributions */
+.score{margin-bottom:13px}
+.score .top{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
+.score .top .lbl{font-size:12px;color:var(--ink-2);font-weight:400}
+.score .top .conf{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.levels{display:flex;gap:3px}
+.lvl{
+  flex:1;position:relative;height:26px;border-radius:4px;background:var(--track);
+  border:1.5px solid transparent;overflow:hidden;cursor:default;
+}
+.lvl .p{position:absolute;inset:auto 0 0 0;background:var(--p-normal);opacity:.55;transition:height .35s cubic-bezier(.16,1,.3,1)}
+.lvl .n{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--mono);font-size:11px;color:var(--ink-2);
+}
+.lvl.picked{border-color:var(--ink)}
+.lvl.picked .n{color:var(--ink);font-weight:500}
+.score .crit{
+  margin-top:5px;font-size:11.5px;line-height:1.45;color:var(--ink-3);
+  border-left:2px solid var(--line);padding-left:8px;max-width:72ch;
+}
+
+/* team bars */
+.team-row{display:grid;grid-template-columns:156px minmax(0,1fr) 44px;gap:12px;align-items:center;margin-bottom:5px}
+.team-row .lbl{font-family:var(--mono);font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-row .bar{height:8px;border-radius:2px;background:var(--track);overflow:hidden}
+.team-row .fill{display:block;height:100%;min-width:2px;background:var(--ink-3);border-radius:2px;transition:width .35s cubic-bezier(.16,1,.3,1)}
+.team-row.win .lbl{color:var(--ink);font-weight:500}
+.team-row.win .fill{background:var(--accent)}
+.team-row .val{font-family:var(--mono);font-size:11px;text-align:right;color:var(--ink-3)}
+.floorline{
+  display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--ink-2);flex-wrap:wrap;
+}
+.floorline .verdict.pass{color:var(--p-normal);font-weight:500}
+.floorline .verdict.fail{color:var(--p-high);font-weight:500}
+
+/* urgency math */
+.math{
+  background:transparent;border:0;padding:0;
+}
+.eq{font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--ink-2);overflow-x:auto;white-space:nowrap;padding-bottom:2px}
+.eq .k{color:var(--ink-3)}
+.eq .r{color:var(--ink);font-weight:500;font-size:13.5px}
+.ruler{position:relative;height:38px;margin-top:10px}
+.ruler .band{position:absolute;top:0;height:13px;border-radius:2px;opacity:.85}
+.ruler .band.low{background:var(--p-low)}
+.ruler .band.normal{background:var(--p-normal)}
+.ruler .band.high{background:var(--p-high)}
+.ruler .band.urgent{background:var(--p-urgent)}
+.ruler .needle{
+  position:absolute;top:-4px;height:21px;width:2px;background:var(--ink);border-radius:1px;
+  transition:left .35s cubic-bezier(.16,1,.3,1);
+}
+.ruler .needle::after{
+  content:"";position:absolute;left:-3px;top:-4px;border:4px solid transparent;border-top-color:var(--ink);
+}
+.ruler .blab{
+  position:absolute;top:17px;font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  letter-spacing:0.04em;text-transform:uppercase;
+}
+
+/* decision */
+.verdict-box{
+  display:flex;gap:28px;align-items:center;flex-wrap:wrap;
+  background:transparent;border:0;padding:0;
+}
+.verdict-box .big{
+  font-family:var(--mono);font-size:19px;font-weight:500;letter-spacing:-0.01em;text-transform:uppercase;
+}
+.verdict-box .cell{display:flex;flex-direction:column;gap:2px}
+.verdict-box .cap{font-family:var(--mono);font-size:11px;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-3)}
+.verdict-box .teamv{font-family:var(--mono);font-size:14px;font-weight:500}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:9px}
+.ttag{
+  font-family:var(--mono);font-size:11px;padding:2px 6px;border-radius:3px;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--ink-2);
+}
+.ttag.warn{border-color:var(--warn-line);color:var(--warn-ink);background:var(--warn-bg)}
+
+/* ---------- params ---------- */
+.params{padding:12px}
+.pgroup{margin-bottom:15px}
+.pgroup > h3{
+  margin:0 0 8px;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);
+}
+.slider{margin-bottom:9px}
+.slider .row{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.slider .row label{font-size:11.5px;color:var(--ink-2);flex:1}
+.slider .row .v{font-family:var(--mono);font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;cursor:pointer;display:block;
+}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--track);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--track);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);
+  border:2px solid var(--panel);margin-top:-7.5px;box-shadow:0 0 0 1px var(--line);
+}
+input[type=range]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--panel);
+  box-shadow:0 0 0 1px var(--line);
+}
+.wsum{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:-3px}
+.wsum.off{color:var(--p-high)}
+.more{margin-top:2px;border-top:1px solid var(--line-soft);padding-top:13px}
+.more > summary{
+  cursor:pointer;list-style:none;font-size:11px;font-weight:500;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:7px;
+  padding-block:6px;
+}
+.more > summary::-webkit-details-marker{display:none}
+.more > summary::before{content:"+";font-family:var(--mono);font-size:13px;line-height:1;width:8px}
+.more[open] > summary::before{content:"\2212"}
+.more > summary:hover{color:var(--ink)}
+.more .pgroup{margin-top:13px}
+.more .note{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:11px 0 0;line-height:1.55}
+
+/* ---------- metrics rail ---------- */
+.railgrid{
+  display:grid;gap:4px 26px;background:transparent;
+  grid-template-columns:repeat(auto-fit,minmax(118px,1fr));padding:2px 0 16px;
+}
+.stat{background:transparent;padding:0}
+.stat .cap{
+  font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-3);
+  display:block;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.stat .v{font-family:var(--mono);font-size:21px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .den{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:2px}
+.stat.good .v{color:var(--p-normal)}
+.stat.bad .v{color:var(--p-urgent)}
+
+.railfoot{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:26px;border-top:1px solid var(--line-soft)}
+@media (max-width:760px){.railfoot{grid-template-columns:minmax(0,1fr);gap:18px}}
+.railfoot > div{padding:14px 0 0}
+.railfoot h3{
+  margin:0 0 7px;font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-3);
+}
+.misroutes{display:flex;gap:5px;flex-wrap:wrap}
+.mis{
+  font-family:var(--mono);font-size:11px;padding:2px 6px;border-radius:3px;
+  background:var(--p-urgent-bg);color:var(--p-urgent);border:1px solid transparent;
+}
+.empty{font-size:11.5px;color:var(--ink-3);font-style:normal}
+
+/* latency strip */
+.lat-wrap{display:flex;align-items:flex-end;gap:2px;height:34px}
+.lat-bar{flex:1;min-width:2px;background:var(--accent);opacity:.55;border-radius:1px 1px 0 0;transition:height .3s}
+.lat-stats{display:flex;gap:16px;flex-wrap:wrap}
+.lat-stats span{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.lat-stats b{color:var(--ink);font-weight:500}
+
+/* ---------- compose ---------- */
+.compose{padding:16px;max-width:720px}
+.compose h3{margin:0 0 4px;font-size:16px;font-weight:500;letter-spacing:-0.01em}
+.compose .lede{margin:0 0 14px;font-size:12.5px;color:var(--ink-2);line-height:1.5;max-width:62ch}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.field input,.field textarea{
+  width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);
+  padding:9px 11px;font-size:13px;line-height:1.5;resize:vertical;
+}
+.field textarea{min-height:130px;font-family:var(--sans)}
+.field .counter{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;margin-top:3px}
+.field .counter.over{color:var(--p-urgent)}
+.compose .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.compose .samples{margin-top:16px;padding-top:13px;border-top:1px solid var(--line-soft)}
+.compose .samples h3{margin:0 0 7px;font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-3)}
+.samplebtn{
+  display:block;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:var(--r);padding:8px 10px;margin-bottom:5px;cursor:pointer;font-size:12px;color:var(--ink-2);
+  transition:border-color .15s;
+}
+.samplebtn:hover{border-color:var(--accent);color:var(--ink)}
+.samplebtn .mono{font-size:11px;color:var(--ink-3);display:block}
+
+.spinner{
+  width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;
+  display:inline-block;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.footnote{
+  margin-top:14px;font-size:11.5px;line-height:1.6;color:var(--ink-3);max-width:80ch;
+  padding-top:12px;border-top:1px solid var(--line);
+}
+.footnote code{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <h1>Triage&nbsp;Workbench <span class="sub">design mockup</span></h1>
+    <span class="tag" id="modeltag">jev-1.13.0</span>
+    <span class="tag" id="runtag">cached run</span>
+    <span class="spacer"></span>
+    <button class="ghostbtn" id="resetbtn" type="button">Reset params</button>
+    <button class="runbtn" id="runbtn" type="button"><span id="runlabel">Run live &middot; 60 tickets</span></button>
+  </header>
+
+  <!-- POLICY DRAWER: reachable from both views, because it governs every ticket -->
+  <details class="drawer" id="drawer">
+    <summary><span class="dcap">Policy parameters</span> <span class="dsum mono" id="drawersum"></span></summary>
+    <div class="drawerbody">
+      <div class="params" id="params"></div>
+    </div>
+  </details>
+
+  <main>
+    <!-- ===== VIEW 1: every ticket ===== -->
+    <section id="view-index">
+      <section class="rail">
+        <div class="railhead">
+          <h2>Latency <span class="count">simulated in this mockup</span></h2>
+          <div class="lat-stats" id="latstats"></div>
+        </div>
+        <div class="lat-wrap" id="latwrap"></div>
+      </section>
+
+      <div class="toolbar">
+        <h2>Tickets <span class="count" id="listcount">60</span></h2>
+        <div class="filters" id="filters">
+          <button class="chip" type="button" data-f="all" aria-pressed="true">all</button>
+          <button class="chip" type="button" data-f="urgent" aria-pressed="false">urgent</button>
+          <button class="chip" type="button" data-f="high" aria-pressed="false">high</button>
+          <button class="chip" type="button" data-f="normal" aria-pressed="false">normal</button>
+          <button class="chip" type="button" data-f="low" aria-pressed="false">low</button>
+          <button class="chip" type="button" data-f="untriaged" aria-pressed="false">needs-triage</button>
+        </div>
+        <button class="ghostbtn" id="composebtn" type="button">+ Write your own ticket</button>
+      </div>
+
+      <div class="boardhead" aria-hidden="true">
+        <span>Ticket</span><span>Priority</span><span>Team</span><span>Urgency</span><span>Latency</span>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <!-- ===== VIEW 2: one ticket, in depth ===== -->
+    <section id="view-detail" hidden>
+      <div class="detailbar">
+        <button class="backbtn" id="backbtn" type="button">&larr; All tickets</button>
+        <span class="count mono" id="inspid"></span>
+        <span class="spacer"></span>
+        <button class="ghostbtn" id="prevbtn" type="button">&uarr; Previous</button>
+        <button class="ghostbtn" id="nextbtn" type="button">&darr; Next</button>
+      </div>
+      <div class="insp" id="insp"></div>
+    </section>
+
+    <!-- ===== VIEW 3: compose ===== -->
+    <section id="view-compose" hidden>
+      <div class="detailbar">
+        <button class="backbtn" id="backbtn2" type="button">&larr; All tickets</button>
+      </div>
+      <div class="compose" id="compose"></div>
+    </section>
+  </main>
+
+  <p class="footnote">
+    Mockup for design approval, not the build. The real page is Next.js in <code>web/</code> with shadcn/ui and
+    <code>@gsap/react</code>, importing <code>src/triage/policy.ts</code> straight into the client so threshold
+    drags never touch the network, and calling Jev through one server route that holds the key.
+  </p>
+</div>
+
+<script src="./2026-09-20-triage-workbench-mockup.data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+"use strict";
+var D = window.TRIAGE_DATA;
+var G = window.gsap;
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------------- criteria text, from src/triage/questions.ts ---------------- */
+var CRITERIA = {
+  impact_severity: [
+    "Nothing is broken. The message asks a question, gives feedback, or requests something for later.",
+    "Something is slower, uglier, or more awkward than it should be, and the customer can still do their work.",
+    "A feature the customer needs is broken, and a workaround exists or is implied.",
+    "The customer cannot do their work and mentions no workaround.",
+    "The customer's whole organisation is blocked, or customer data is lost or corrupted."
+  ],
+  time_pressure: [
+    "The message refers to no deadline or timeframe at all.",
+    "The customer wants this resolved reasonably soon but names no date.",
+    "The customer names a deadline some days away, or says the problem is getting worse.",
+    "The customer names a deadline today or tomorrow, or says work has already stopped."
+  ],
+  customer_frustration: [
+    "Calm and matter of fact.",
+    "Mildly annoyed but polite.",
+    "Clearly frustrated; complains about the product or about previous support.",
+    "Angry; threatens to cancel, escalate, or make the problem public."
+  ]
+};
+var SCORE_LABEL = {
+  impact_severity:"Impact severity", time_pressure:"Time pressure", customer_frustration:"Customer frustration"
+};
+var GATE_LABEL = {
+  has_request:"Genuine request (has_request)",
+  is_security_or_data_loss:"Security / data loss",
+  is_outage:"Service outage"
+};
+var TEAM_ORDER = ["technical_support","billing","account_access","onboarding","sales","product_feedback","none"];
+var PRIORITIES = ["low","normal","high","urgent"];
+
+/* ---------------- policy, ported 1:1 from src/triage/policy.ts ---------------- */
+var DEFAULTS = {
+  junkBelow:0.3, securityAbove:0.7, outageAbove:0.7,
+  weights:{impact:0.6,time:0.3,frustration:0.1},
+  thresholds:{urgent:0.75,high:0.5,normal:0.25},
+  teamConfidenceFloor:0.6, frustratedTagAt:2
+};
+var TOP = {impact_severity:4, time_pressure:3, customer_frustration:3};
+var TOL = 1e-9;
+
+function urgency(a,w){
+  return w.impact*a.impact_severity.score/TOP.impact_severity
+       + w.time*a.time_pressure.score/TOP.time_pressure
+       + w.frustration*a.customer_frustration.score/TOP.customer_frustration;
+}
+function band(u,t){
+  if(u >= t.urgent - TOL) return "urgent";
+  if(u >= t.high - TOL) return "high";
+  if(u >= t.normal - TOL) return "normal";
+  return "low";
+}
+function route(t,floor){
+  if(t.choice === "none") return {team:null,tags:["needs-triage"]};
+  if(t.confidence < floor) return {team:null,tags:["needs-triage","jev-guess-"+t.choice]};
+  return {team:t.choice,tags:[]};
+}
+function decide(a,p){
+  if(a.has_request.noul < p.junkBelow){
+    return {priority:"low",team:null,tags:["jev-triaged","jev-p-low","needs-triage","jev-junk"],junk:true};
+  }
+  var isSecurity = a.is_security_or_data_loss.noul > p.securityAbove;
+  var isOutage = a.is_outage.noul > p.outageAbove;
+  var priority = (isSecurity||isOutage) ? "urgent" : band(urgency(a,p.weights),p.thresholds);
+  var r = route(a.team,p.teamConfidenceFloor);
+  var tags = ["jev-triaged","jev-p-"+priority].concat(r.tags);
+  if(isSecurity) tags.push("jev-security");
+  if(a.customer_frustration.score >= p.frustratedTagAt) tags.push("jev-frustrated");
+  return {priority:priority,team:r.team,tags:tags,isSecurity:isSecurity,isOutage:isOutage,junk:false};
+}
+
+/* ---------------- state ---------------- */
+var params = JSON.parse(JSON.stringify(DEFAULTS));
+var tickets = D.tickets.map(function(t){
+  return {
+    id:t.id, subject:t.subject, body:t.body,
+    expectedPriority:t.provPriority, expectedTeam:t.provTeam,
+    srcPriority:t.srcPriority, srcQueue:t.srcQueue,
+    answers:D.answers[t.id], latency:null, pending:false, own:false
+  };
+});
+var selected = tickets[0].id;
+var filter = "all";
+var mode = "index";
+var live = false;
+
+var $ = function(s){ return document.querySelector(s); };
+var el = function(tag, cls){ var e = document.createElement(tag); if(cls) e.className = cls; return e; };
+var pct = function(x){ return x === null ? "n/a" : (x*100).toFixed(1)+"%"; };
+var esc = function(s){ var d = document.createElement("div"); d.textContent = s; return d.innerHTML; };
+function byId(id){ for(var i=0;i<tickets.length;i++){ if(tickets[i].id === id) return tickets[i]; } return null; }
+
+/* ---------------- board: every ticket on one page ---------------- */
+function matchesFilter(t,d){
+  if(filter === "all") return true;
+  if(filter === "untriaged") return d.team === null;
+  return d.priority === filter;
+}
+function visible(){
+  return tickets.filter(function(t){
+    if(!t.answers) return true;
+    return matchesFilter(t, decide(t.answers, params));
+  });
+}
+function renderBoard(){
+  var host = $("#board");
+  var frag = document.createDocumentFragment();
+  var shown = visible();
+  shown.forEach(function(t){
+    var d = t.answers ? decide(t.answers, params) : null;
+    var b = el("button","brow" + (d ? " p-" + d.priority : "") + (t.pending ? " pending" : ""));
+    b.type = "button";
+    b.dataset.id = t.id;
+
+    var tk = el("span","tkt");
+    var idl = el("span","id"); idl.textContent = (t.own ? "yours \u00b7 " : "") + t.id;
+    var sj = el("span","subj"); sj.textContent = t.subject || "(untitled)";
+    sj.title = t.subject || "";
+    tk.appendChild(idl); tk.appendChild(sj);
+    b.appendChild(tk);
+
+    var pc = el("span","pcell");
+    if(t.pending){ var ph = el("span","cell"); ph.textContent = "\u2026"; pc.appendChild(ph); }
+    else if(d){ var chip = el("span","pchip " + d.priority); chip.textContent = d.priority; pc.appendChild(chip); }
+    b.appendChild(pc);
+
+    var tm = el("span","cell team" + (d && d.team === null ? " untriaged" : ""));
+    tm.textContent = !d ? "" : d.team === null ? "needs-triage" : d.team.replace(/_/g," ");
+    b.appendChild(tm);
+
+    var ug = el("span","cell urg");
+    ug.textContent = t.answers ? urgency(t.answers, params.weights).toFixed(3) : "";
+    b.appendChild(ug);
+
+    var lt = el("span","cell lat");
+    lt.textContent = t.latency === null ? "\u2014" : t.latency + " ms";
+    b.appendChild(lt);
+
+    frag.appendChild(b);
+  });
+  host.innerHTML = "";
+  host.appendChild(frag);
+  $("#listcount").textContent = shown.length === tickets.length ? String(shown.length) : shown.length + " / " + tickets.length;
+}
+
+/* ---------------- inspector ---------------- */
+function gateRow(key,val,thr,tripped,invert){
+  var g = el("div","gate" + (tripped ? " tripped" : ""));
+  var l = el("span","lbl"); l.textContent = GATE_LABEL[key];
+  var bar = el("span","bar");
+  var fill = el("span","fill"); fill.style.width = (val*100).toFixed(1)+"%";
+  if(!tripped && invert) fill.style.background = "var(--p-normal)";
+  var t = el("span","thr"); t.style.left = (thr*100).toFixed(1)+"%";
+  t.title = "threshold " + thr.toFixed(2);
+  bar.appendChild(fill); bar.appendChild(t);
+  var v = el("span","val"); v.textContent = val.toFixed(2);
+  g.appendChild(l); g.appendChild(bar); g.appendChild(v);
+  return g;
+}
+function scoreBlock(key,ans){
+  var wrap = el("div","score");
+  var top = el("div","top");
+  var lbl = el("span","lbl"); lbl.textContent = SCORE_LABEL[key] + " · level " + ans.score + " of " + TOP[key];
+  var conf = el("span","conf"); conf.textContent = "confidence " + ans.confidence.toFixed(2);
+  top.appendChild(lbl); top.appendChild(conf);
+  wrap.appendChild(top);
+  var levels = el("div","levels");
+  for(var i=0;i<=TOP[key];i++){
+    var p = ans.probabilities[String(i)] || 0;
+    var c = el("div","lvl" + (i === ans.score ? " picked" : ""));
+    c.title = "level " + i + " · p=" + p.toFixed(2);
+    var f = el("div","p");
+    f.style.height = (p*100).toFixed(1)+"%";
+    f.style.background = "var(--p-" + (i >= TOP[key]-1 ? "urgent" : i >= TOP[key]-2 ? "high" : "normal") + ")";
+    var n = el("div","n"); n.textContent = i;
+    c.appendChild(f); c.appendChild(n);
+    levels.appendChild(c);
+  }
+  wrap.appendChild(levels);
+  var crit = el("div","crit"); crit.textContent = CRITERIA[key][ans.score];
+  wrap.appendChild(crit);
+  return wrap;
+}
+// Statistics for this one ticket: how it scored, how close it came to a
+// different answer, and where the model was least certain.
+function ticketStats(t, a, d){
+  var wrap = el("div","tstats");
+  function stat(cap, val, sub, color){
+    var c = el("div","tstat");
+    var k = el("span","cap"); k.textContent = cap;
+    var v = el("div","v"); v.textContent = val; if(color) v.style.color = color;
+    c.appendChild(k); c.appendChild(v);
+    if(sub){ var sb = el("span","sub"); sb.textContent = sub; c.appendChild(sb); }
+    return wrap.appendChild(c), c;
+  }
+  var u = urgency(a, params.weights);
+  var th = params.thresholds;
+
+  stat("latency", t.latency === null ? "\u2014" : t.latency + " ms",
+       t.latency === null ? "no live run yet" : "one request, seven questions");
+
+  stat("priority", d.priority, d.isSecurity ? "forced by security gate" : d.isOutage ? "forced by outage gate" : d.junk ? "junk branch" : "from urgency " + u.toFixed(3),
+       "var(--p-" + d.priority + ")");
+
+  // distance to the nearest band edge: how close this ticket came to flipping
+  var edges = [{n:"normal",v:th.normal},{n:"high",v:th.high},{n:"urgent",v:th.urgent}];
+  var near = null;
+  edges.forEach(function(e){ var dist = Math.abs(u - e.v); if(near === null || dist < near.d) near = {d:dist, n:e.n, v:e.v}; });
+  stat("nearest edge", (d.isSecurity || d.isOutage || d.junk) ? "n/a" : near.d.toFixed(3),
+       (d.isSecurity || d.isOutage || d.junk) ? "gate bypassed urgency" : (u >= near.v ? "above " : "below ") + near.n + " at " + near.v.toFixed(2));
+
+  var margin = a.team.confidence - params.teamConfidenceFloor;
+  stat("team margin", (margin >= 0 ? "+" : "") + margin.toFixed(2),
+       a.team.choice === "none" ? "model chose none" : margin >= 0 ? "clears the floor" : "held for triage",
+       margin >= 0 ? "" : "var(--p-high)");
+
+  // weakest link: the judgment the model was least sure of
+  var conf = [
+    {k:"impact", v:a.impact_severity.confidence},
+    {k:"time", v:a.time_pressure.confidence},
+    {k:"frustration", v:a.customer_frustration.confidence},
+    {k:"team", v:a.team.confidence}
+  ].sort(function(x,y){ return x.v - y.v; })[0];
+  stat("least certain", conf.v.toFixed(2), conf.k);
+
+  return wrap;
+}
+function renderInspector(){
+  var t = byId(selected);
+  var host = $("#insp");
+  host.innerHTML = "";
+  if(!t){ return; }
+  $("#inspid").textContent = t.id;
+
+  if(t.pending || !t.answers){
+    var w = el("div");
+    w.style.padding = "40px 0"; w.style.textAlign = "center"; w.style.color = "var(--ink-3)";
+    w.innerHTML = '<span class="spinner"></span><div style="margin-top:10px;font-size:12.5px">waiting on Jev…</div>';
+    host.appendChild(w);
+    return;
+  }
+  var a = t.answers;
+  var d = decide(a, params);
+
+  // head
+  var head = el("div","tkt-head");
+  // the id lives in the detail bar and latency is a stat, so the only badge
+  // left worth showing is whether you wrote this ticket yourself
+  if(t.own){
+    var meta = el("div","meta");
+    var ot = el("span","tag live"); ot.textContent = "yours"; meta.appendChild(ot);
+    head.appendChild(meta);
+  }
+  var h3 = el("h3"); h3.textContent = t.subject || "(untitled)"; head.appendChild(h3);
+  var p = el("p"); p.textContent = t.body; head.appendChild(p);
+  host.appendChild(head);
+  host.appendChild(ticketStats(t, a, d));
+
+  // gates
+  var s1 = el("section","sec");
+  var h1 = el("h4"); h1.innerHTML = 'Gates <span class="hint">noul · tick marks the threshold</span>';
+  s1.appendChild(h1);
+  s1.appendChild(gateRow("has_request", a.has_request.noul, params.junkBelow, a.has_request.noul < params.junkBelow, true));
+  s1.appendChild(gateRow("is_security_or_data_loss", a.is_security_or_data_loss.noul, params.securityAbove, d.isSecurity));
+  s1.appendChild(gateRow("is_outage", a.is_outage.noul, params.outageAbove, d.isOutage));
+  if(d.junk){
+    var jn = el("div","crit"); jn.style.marginTop = "8px"; jn.style.borderLeftColor = "var(--p-urgent)";
+    jn.textContent = "has_request fell below junkBelow, so the junk branch fired and everything below is bypassed.";
+    s1.appendChild(jn);
+  }
+  host.appendChild(s1);
+
+  // scores
+  var s2 = el("section","sec");
+  var h2 = el("h4"); h2.innerHTML = 'Scored judgments <span class="hint">bar height = probability of that level</span>';
+  s2.appendChild(h2);
+  ["impact_severity","time_pressure","customer_frustration"].forEach(function(k){
+    s2.appendChild(scoreBlock(k, a[k]));
+  });
+  host.appendChild(s2);
+
+  // urgency math
+  var s3 = el("section","sec");
+  var h3b = el("h4"); h3b.innerHTML = 'Urgency <span class="hint">recomputed in-browser on every drag</span>';
+  s3.appendChild(h3b);
+  var math = el("div","math");
+  var u = urgency(a, params.weights);
+  var w = params.weights;
+  var eq = el("div","eq");
+  eq.innerHTML =
+    '<span class="k">impact</span> ' + w.impact.toFixed(2) + ' × ' + a.impact_severity.score + '/4' +
+    '  <span class="k">+</span>  <span class="k">time</span> ' + w.time.toFixed(2) + ' × ' + a.time_pressure.score + '/3' +
+    '  <span class="k">+</span>  <span class="k">frustr</span> ' + w.frustration.toFixed(2) + ' × ' + a.customer_frustration.score + '/3' +
+    '  <span class="k">=</span>  <span class="r" id="uval">' + u.toFixed(4) + '</span>';
+  math.appendChild(eq);
+
+  var ruler = el("div","ruler");
+  var th = params.thresholds;
+  var stops = [
+    {k:"low", from:0, to:Math.max(0,th.normal)},
+    {k:"normal", from:th.normal, to:Math.max(th.normal,th.high)},
+    {k:"high", from:th.high, to:Math.max(th.high,th.urgent)},
+    {k:"urgent", from:th.urgent, to:1}
+  ];
+  stops.forEach(function(s){
+    var b = el("div","band " + s.k);
+    b.style.left = (s.from*100)+"%";
+    b.style.width = Math.max(0,(s.to-s.from)*100)+"%";
+    ruler.appendChild(b);
+    if(s.to - s.from > 0.08){
+      var lb = el("div","blab");
+      lb.style.left = (s.from*100)+"%";
+      lb.textContent = s.k;
+      ruler.appendChild(lb);
+    }
+  });
+  var needle = el("div","needle");
+  needle.style.left = Math.min(100, Math.max(0, u*100)) + "%";
+  needle.title = "urgency " + u.toFixed(4);
+  ruler.appendChild(needle);
+  math.appendChild(ruler);
+  if(d.isSecurity || d.isOutage){
+    var ov = el("div","crit");
+    ov.style.marginTop = "8px"; ov.style.borderLeftColor = "var(--p-urgent)";
+    ov.textContent = "Gate override: " + (d.isSecurity ? "security/data-loss" : "outage") +
+      " tripped, so urgency is bypassed and priority is forced to urgent.";
+    math.appendChild(ov);
+  }
+  s3.appendChild(math);
+  host.appendChild(s3);
+
+  // team
+  var s4 = el("section","sec");
+  var h4b = el("h4"); h4b.innerHTML = 'Team routing <span class="hint">choice · confidence vs floor</span>';
+  s4.appendChild(h4b);
+  var probs = a.team.probabilities;
+  var order = TEAM_ORDER.slice().sort(function(x,y){ return (probs[y]||0)-(probs[x]||0); });
+  order.forEach(function(k){
+    var v = probs[k] || 0;
+    var r = el("div","team-row" + (k === a.team.choice ? " win" : ""));
+    var l = el("span","lbl"); l.textContent = k;
+    var bar = el("span","bar");
+    var f = el("span","fill"); f.style.width = (v*100).toFixed(1)+"%"; if(v === 0) f.style.minWidth = "0";
+    bar.appendChild(f);
+    var vv = el("span","val"); vv.textContent = v.toFixed(2);
+    r.appendChild(l); r.appendChild(bar); r.appendChild(vv);
+    s4.appendChild(r);
+  });
+  var fl = el("div","floorline");
+  var passes = a.team.choice !== "none" && a.team.confidence >= params.teamConfidenceFloor;
+  fl.innerHTML = 'confidence <b>' + a.team.confidence.toFixed(2) + '</b> vs floor <b>' +
+    params.teamConfidenceFloor.toFixed(2) + '</b> → ' +
+    '<span class="verdict ' + (passes ? "pass" : "fail") + '">' +
+    (a.team.choice === "none" ? "no team owns this" : passes ? "routed to " + a.team.choice : "below floor, held for triage") +
+    '</span>';
+  s4.appendChild(fl);
+  host.appendChild(s4);
+
+  // verdict
+  var s5 = el("section","sec");
+  var h5 = el("h4"); h5.textContent = "Decision";
+  s5.appendChild(h5);
+  var vb = el("div","verdict-box");
+  var c1 = el("div","cell");
+  var cap1 = el("span","cap"); cap1.textContent = "priority";
+  var big = el("span","big"); big.textContent = d.priority; big.style.color = "var(--p-"+d.priority+")";
+  c1.appendChild(cap1); c1.appendChild(big);
+  var c2 = el("div","cell");
+  var cap2 = el("span","cap"); cap2.textContent = "team";
+  var tv = el("span","teamv");
+  tv.textContent = d.team === null ? "— needs-triage" : d.team;
+  if(d.team === null) tv.style.color = "var(--p-high)";
+  c2.appendChild(cap2); c2.appendChild(tv);
+  vb.appendChild(c1); vb.appendChild(c2);
+  s5.appendChild(vb);
+  var shownTags = d.tags.filter(function(tg){ return tg !== "jev-triaged" && tg.indexOf("jev-p-") !== 0; });
+  if(shownTags.length > 0){
+    var tags = el("div","tags");
+    shownTags.forEach(function(tg){
+      var x = el("span","ttag" + (/needs-triage|junk|security|guess/.test(tg) ? " warn" : ""));
+      x.textContent = tg;
+      tags.appendChild(x);
+    });
+    s5.appendChild(tags);
+  }
+  host.appendChild(s5);
+
+  if(!reduce && G){
+    G.from(host.querySelectorAll(".sec, .tkt-head"), {opacity:0, y:6, duration:0.3, stagger:0.035, ease:"power2.out"});
+  }
+}
+
+/* ---------------- params panel ---------------- */
+// Split by what the repo actually tunes. scripts/eval.ts:68-76 sweeps the three
+// thresholds and weights.frustration; scripts/eval.ts:98-99 sweeps teamConfidenceFloor.
+// Every sweep holds the remaining six at DEFAULT_PARAMS, so they sit behind a disclosure.
+var PRIMARY = [
+  {g:"Priority thresholds", items:[
+    {k:"thresholds.urgent", label:"urgent \u2265", min:0, max:1, step:0.01},
+    {k:"thresholds.high", label:"high \u2265", min:0, max:1, step:0.01},
+    {k:"thresholds.normal", label:"normal \u2265", min:0, max:1, step:0.01}
+  ]},
+  {g:"Routing", items:[
+    {k:"teamConfidenceFloor", label:"team confidence floor", min:0, max:1, step:0.01}
+  ]},
+  {g:"Urgency weights", items:[
+    {k:"weights.frustration", label:"frustration", min:0, max:1, step:0.05}
+  ]}
+];
+var SECONDARY = [
+  {g:"Gates", items:[
+    {k:"junkBelow", label:"junkBelow", min:0, max:1, step:0.01},
+    {k:"securityAbove", label:"securityAbove", min:0, max:1, step:0.01},
+    {k:"outageAbove", label:"outageAbove", min:0, max:1, step:0.01}
+  ]},
+  {g:"Urgency weights", items:[
+    {k:"weights.impact", label:"impact", min:0, max:1, step:0.05},
+    {k:"weights.time", label:"time", min:0, max:1, step:0.05}
+  ]},
+  {g:"Routing", items:[
+    {k:"frustratedTagAt", label:"frustratedTagAt (level)", min:0, max:3, step:1}
+  ]}
+];
+function getp(k){ return k.indexOf(".") < 0 ? params[k] : params[k.split(".")[0]][k.split(".")[1]]; }
+function setp(k,v){ if(k.indexOf(".") < 0) params[k] = v; else params[k.split(".")[0]][k.split(".")[1]] = v; }
+
+function buildGroup(grp, host){
+  var g = el("div","pgroup");
+  var h = el("h3"); h.textContent = grp.g; g.appendChild(h);
+  grp.items.forEach(function(it){
+    var sl = el("div","slider");
+    var row = el("div","row");
+    var lab = el("label"); lab.textContent = it.label; lab.htmlFor = "sl-" + it.k;
+    var v = el("span","v"); v.id = "v-" + it.k;
+    v.textContent = it.step >= 1 ? String(getp(it.k)) : getp(it.k).toFixed(2);
+    row.appendChild(lab); row.appendChild(v);
+    var inp = document.createElement("input");
+    inp.type = "range"; inp.id = "sl-" + it.k;
+    inp.min = it.min; inp.max = it.max; inp.step = it.step; inp.value = getp(it.k);
+    inp.addEventListener("input", function(){
+      setp(it.k, parseFloat(inp.value));
+      v.textContent = it.step >= 1 ? inp.value : parseFloat(inp.value).toFixed(2);
+      refresh();
+    });
+    sl.appendChild(row); sl.appendChild(inp);
+    g.appendChild(sl);
+  });
+  if(grp.g === "Urgency weights" && host.id === "params"){
+    var ws = el("div","wsum"); ws.id = "wsum"; g.appendChild(ws);
+  }
+  host.appendChild(g);
+}
+function renderParams(){
+  var host = $("#params");
+  host.innerHTML = "";
+  PRIMARY.forEach(function(grp){ buildGroup(grp, host); });
+
+  var det = document.createElement("details");
+  det.className = "more";
+  var sum = document.createElement("summary");
+  sum.textContent = "Held fixed in sweeps";
+  det.appendChild(sum);
+  SECONDARY.forEach(function(grp){ buildGroup(grp, det); });
+  var note = el("p","note");
+  note.textContent = "eval.ts holds these six at DEFAULT_PARAMS across every sweep.";
+  det.appendChild(note);
+  host.appendChild(det);
+
+  updateWsum();
+}
+function updateWsum(){
+  var n = $("#wsum"); if(!n) return;
+  var s = params.weights.impact + params.weights.time + params.weights.frustration;
+  n.textContent = "sum " + s.toFixed(2) + (Math.abs(s-1) > 0.001 ? "  · urgency no longer spans 0–1" : "");
+  n.className = "wsum" + (Math.abs(s-1) > 0.001 ? " off" : "");
+}
+
+/* ---------------- latency strip ---------------- */
+function renderLatency(){
+  var lats = tickets.filter(function(t){ return t.latency !== null; }).map(function(t){ return t.latency; });
+  var wrap = $("#latwrap"), stats = $("#latstats");
+  wrap.innerHTML = ""; stats.innerHTML = "";
+  document.querySelector(".rail").classList.toggle("empty", lats.length === 0);
+  if(lats.length === 0){
+    var e = el("span","empty");
+    e.textContent = "No live run yet. Select Run live to fan out 60 requests.";
+    stats.appendChild(e);
+    return;
+  }
+  var max = Math.max.apply(null, lats);
+  lats.forEach(function(v){
+    var b = el("div","lat-bar");
+    b.style.height = Math.max(3,(v/max)*100) + "%";
+    b.title = v + " ms";
+    wrap.appendChild(b);
+  });
+  var sorted = lats.slice().sort(function(a,b){ return a-b; });
+  var p = function(q){ return sorted[Math.min(sorted.length-1, Math.floor(sorted.length*q))]; };
+  var mean = Math.round(lats.reduce(function(a,b){return a+b;},0)/lats.length);
+  [["p50",p(0.5)+" ms"],["p95",p(0.95)+" ms"],["mean",mean+" ms"],["wall",(window.__wall||0)+" ms"],["done",lats.length+"/"+tickets.filter(function(t){return !t.own;}).length]]
+  .forEach(function(pair){
+    var s = el("span"); s.innerHTML = pair[0] + " <b>" + pair[1] + "</b>"; stats.appendChild(s);
+  });
+}
+
+/* ---------------- compose ---------------- */
+var SAMPLES = [
+  {s:"URGENT: customer records showing another account's data after this morning's deploy",
+   b:"Since about 09:15 UTC three of our account managers have opened customer profiles and seen billing details belonging to a different company. We have told staff to stop using the CRM. We need to know immediately whether data was exposed outside our organisation, and we have a regulator notification window of 72 hours."},
+  {s:"Re: Re: Out of Office AutoReply",
+   b:"I am currently out of the office with limited access to email and will return on Monday. For urgent matters please contact the duty desk."},
+  {s:"Can you extend our trial by a week?",
+   b:"Hi, we are still evaluating and our trial ends Friday. Our procurement person is on leave until next Tuesday so we cannot get a PO signed in time. Could you push the end date out by a week or so? Nothing is broken, we just need a bit more runway."}
+];
+function renderCompose(){
+  var host = $("#compose");
+  host.innerHTML = "";
+  var h = el("h3"); h.textContent = "Write your own ticket"; host.appendChild(h);
+  var l = el("p","lede");
+  l.textContent = "Paste anything a customer might send. It goes through the same seven questions and the same policy as the 60 above, and lands in the board with full evidence. In the real build this is one POST to the server route that holds the key; here the answer is synthesised so you can see the flow.";
+  host.appendChild(l);
+
+  var f1 = el("div","field");
+  f1.innerHTML = '<label for="c-subject">Subject</label><input id="c-subject" type="text" maxlength="200" placeholder="Cannot log in after SSO change">' +
+                 '<div class="counter" id="c-scount">0 / 200</div>';
+  host.appendChild(f1);
+
+  var f2 = el("div","field");
+  f2.innerHTML = '<label for="c-body">Body</label><textarea id="c-body" maxlength="5000" placeholder="Describe the problem the way a customer would…"></textarea>' +
+                 '<div class="counter" id="c-bcount">0 / 5000</div>';
+  host.appendChild(f2);
+
+  var acts = el("div","actions");
+  var go = el("button","runbtn"); go.type = "button"; go.id = "c-go"; go.textContent = "Classify";
+  var cancel = el("button","ghostbtn"); cancel.type = "button"; cancel.textContent = "Back to evidence";
+  acts.appendChild(go); acts.appendChild(cancel);
+  var err = el("span"); err.id = "c-err"; err.style.cssText = "font-size:12px;color:var(--p-urgent)";
+  acts.appendChild(err);
+  host.appendChild(acts);
+
+  var samp = el("div","samples");
+  samp.innerHTML = '<h3>Or start from one of these</h3>';
+  SAMPLES.forEach(function(s,i){
+    var b = el("button","samplebtn"); b.type = "button";
+    b.innerHTML = '<span class="mono">sample ' + (i+1) + '</span>' + esc(s.s);
+    b.addEventListener("click", function(){
+      $("#c-subject").value = s.s; $("#c-body").value = s.b;
+      counts();
+    });
+    samp.appendChild(b);
+  });
+  host.appendChild(samp);
+
+  function counts(){
+    var sv = $("#c-subject").value, bv = $("#c-body").value;
+    $("#c-scount").textContent = sv.length + " / 200";
+    $("#c-bcount").textContent = bv.length + " / 5000";
+  }
+  $("#c-subject").addEventListener("input", counts);
+  $("#c-body").addEventListener("input", counts);
+  cancel.addEventListener("click", function(){ showView("index"); });
+  go.addEventListener("click", submitCompose);
+}
+// Three views, one at a time: the index of every ticket, one ticket in depth,
+// and the compose form.
+function showView(v, id){
+  mode = v;
+  if(id) selected = id;
+  $("#view-index").hidden = v !== "index";
+  $("#view-detail").hidden = v !== "detail";
+  $("#view-compose").hidden = v !== "compose";
+  if(v === "detail"){ $("#inspid").textContent = selected; renderInspector(); }
+  if(v === "compose") renderCompose();
+  if(v === "index") renderBoard();
+  window.scrollTo({top:0, behavior: reduce ? "auto" : "smooth"});
+}
+function step(delta){
+  var list = visible();
+  var i = list.findIndex(function(t){ return t.id === selected; });
+  if(i < 0) return;
+  var n = list[(i + delta + list.length) % list.length];
+  showView("detail", n.id);
+}
+
+/* synthetic answers for the mockup only */
+function synth(subject, body){
+  var txt = (subject + " " + body).toLowerCase();
+  var has = /unsubscribe|out of office|auto.?reply|autoreply|no.?reply/.test(txt) ? 0.06 : 0.97;
+  var sec = /breach|unauthoris|unauthoriz|exposed|leak|another account|other account|data loss|corrupt|gdpr|regulator/.test(txt) ? 0.93 : 0.03;
+  var out = /\b(down|outage|unreachable|502|503|everything is broken|site is down|cannot reach)\b/.test(txt) ? 0.88 : 0.04;
+  var impact = sec > 0.7 ? 4 : /cannot|can't|unable|blocked|broken|failing|error/.test(txt) ? 3 : /slow|delay|awkward|confusing/.test(txt) ? 1 : 0;
+  var time = /today|tomorrow|immediately|asap|urgent|right now|stopped/.test(txt) ? 3 : /friday|monday|next week|deadline|by the|\bweek\b/.test(txt) ? 2 : /soon/.test(txt) ? 1 : 0;
+  var fr = /unacceptable|furious|cancel|escalate|lawyer|ridiculous|appalling/.test(txt) ? 3 : /frustrat|again|still not|third time|disappoint/.test(txt) ? 2 : /annoy|bit of a pain/.test(txt) ? 1 : 0;
+  var team = /invoice|charge|refund|billing|payment|tax|seat|plan/.test(txt) ? "billing"
+    : /login|log in|sso|mfa|password|permission|access|role/.test(txt) ? "account_access"
+    : /price|pricing|quote|trial|renew|upgrade|procurement|\bpo\b/.test(txt) ? "sales"
+    : /how do i|how to|set up|setup|configure|documentation|training|guide/.test(txt) ? "onboarding"
+    : /feature request|roadmap|wish|would be nice|suggestion/.test(txt) ? "product_feedback"
+    : impact >= 2 || sec > 0.7 || out > 0.7 ? "technical_support" : "none";
+  function dist(n, pick, conf){
+    var o = {};
+    for(var i=0;i<n;i++) o[String(i)] = i === pick ? conf : (1-conf)/(n-1);
+    return o;
+  }
+  var tconf = team === "none" ? 0.42 : 0.78;
+  var tp = {};
+  TEAM_ORDER.forEach(function(k){ tp[k] = k === team ? tconf : (1-tconf)/(TEAM_ORDER.length-1); });
+  return {
+    has_request:{type:"noul",noul:has},
+    is_security_or_data_loss:{type:"noul",noul:sec},
+    is_outage:{type:"noul",noul:out},
+    impact_severity:{type:"score",score:impact,confidence:0.81,probabilities:dist(5,impact,0.81)},
+    time_pressure:{type:"score",score:time,confidence:0.76,probabilities:dist(4,time,0.76)},
+    customer_frustration:{type:"score",score:fr,confidence:0.79,probabilities:dist(4,fr,0.79)},
+    team:{type:"choice",choice:team,confidence:tconf,probabilities:tp}
+  };
+}
+var ownN = 0;
+function submitCompose(){
+  var sv = $("#c-subject").value.trim();
+  var bv = $("#c-body").value.trim();
+  var err = $("#c-err");
+  if(!bv){ err.textContent = "Body is required."; return; }
+  if(bv.length > 5000 || sv.length > 200){ err.textContent = "Too long."; return; }
+  err.textContent = "";
+  ownN++;
+  var t = {
+    id:"own-" + ownN, subject:sv || "(no subject)", body:bv,
+    expectedPriority:null, expectedTeam:null, srcPriority:"", srcQueue:"",
+    answers:null, latency:null, pending:true, own:true
+  };
+  tickets.unshift(t);
+  showView("detail", t.id);
+  var go = $("#c-go");
+  if(go){ go.disabled = true; }
+  var lat = 140 + Math.round(Math.random()*230);
+  setTimeout(function(){
+    t.answers = synth(sv, bv);
+    t.latency = lat; t.pending = false;
+    refresh(); renderLatency();
+  }, reduce ? 60 : lat);
+}
+
+/* ---------------- live run (simulated) ---------------- */
+function runLive(){
+  if(live) return;
+  live = true;
+  var btn = $("#runbtn");
+  btn.disabled = true;
+  $("#runtag").textContent = "live run";
+  $("#runtag").className = "tag live";
+  var targets = tickets.filter(function(t){ return !t.own; });
+  targets.forEach(function(t){ t.pending = true; t.latency = null; });
+  renderBoard(); renderLatency();
+
+  var done = 0, inflight = 0, i = 0, POOL = 8;
+  var t0 = performance.now();
+  function pump(){
+    while(inflight < POOL && i < targets.length){
+      (function(t){
+        inflight++;
+        var lat = Math.round(120 + Math.random()*Math.random()*620);
+        setTimeout(function(){
+          t.pending = false; t.latency = lat;
+          inflight--; done++;
+          $("#runlabel").textContent = "receiving · " + done + " / " + targets.length;
+          if(done % 3 === 0 || done === targets.length){ refresh(); renderLatency(); }
+          if(done === targets.length){
+            window.__wall = Math.round(performance.now()-t0);
+            live = false; btn.disabled = false;
+            $("#runlabel").textContent = "Run live · 60 tickets";
+            refresh(); renderLatency();
+          } else { pump(); }
+        }, reduce ? 8 : lat/3);
+      })(targets[i]); i++;
+    }
+  }
+  $("#runlabel").textContent = "receiving · 0 / " + targets.length;
+  pump();
+}
+
+/* ---------------- wiring ---------------- */
+function drawerSummary(){
+  var th = params.thresholds;
+  $("#drawersum").textContent = "urgent " + th.urgent.toFixed(2) + " \u00b7 high " + th.high.toFixed(2) +
+    " \u00b7 normal " + th.normal.toFixed(2) + " \u00b7 floor " + params.teamConfidenceFloor.toFixed(2);
+}
+function refresh(){
+  updateWsum(); drawerSummary();
+  if(mode === "index") renderBoard(); else if(mode === "detail") renderInspector();
+}
+
+$("#board").addEventListener("click", function(e){
+  var b = e.target.closest(".brow");
+  if(b) showView("detail", b.dataset.id);
+});
+$("#backbtn").addEventListener("click", function(){ showView("index"); });
+$("#backbtn2").addEventListener("click", function(){ showView("index"); });
+$("#prevbtn").addEventListener("click", function(){ step(-1); });
+$("#nextbtn").addEventListener("click", function(){ step(1); });
+document.addEventListener("keydown", function(e){
+  if(e.target.matches("input,textarea")) return;
+  if(mode === "detail" && (e.key === "Escape")) showView("index");
+  if(mode === "detail" && (e.key === "j" || e.key === "ArrowDown")) { e.preventDefault(); step(1); }
+  if(mode === "detail" && (e.key === "k" || e.key === "ArrowUp")) { e.preventDefault(); step(-1); }
+});
+$("#filters").addEventListener("click", function(e){
+  var c = e.target.closest(".chip");
+  if(!c) return;
+  filter = c.dataset.f;
+  Array.prototype.forEach.call($("#filters").children, function(x){
+    x.setAttribute("aria-pressed", x === c ? "true" : "false");
+  });
+  renderBoard();
+});
+$("#composebtn").addEventListener("click", function(){ showView("compose"); });
+$("#runbtn").addEventListener("click", runLive);
+$("#resetbtn").addEventListener("click", function(){
+  params = JSON.parse(JSON.stringify(DEFAULTS));
+  renderParams(); refresh();
+});
+
+renderParams();
+drawerSummary();
+renderBoard();
+renderLatency();
+})();
+</script>
