@@ -8,16 +8,13 @@ export type Row = {
   id: string;
   subject: string;
   body: string;
-  /** the prior cached pass; null for a ticket the user wrote */
-  cached: Answers | null;
-  /** the most recent live pass, kept alongside cached so the two can be compared */
+  /** the only pass there is; null until a live run resolves this ticket */
   live: RunResult | null;
   pending: boolean;
   own: boolean;
 };
 
-/** Live wins when it exists, so the board shows the freshest evidence. */
-export const answersOf = (row: Row): Answers | null => row.live?.answers ?? row.cached;
+export const answersOf = (row: Row): Answers | null => row.live?.answers ?? null;
 
 export type Verdict = TriageDecision & {
   urgency: number;

@@ -48,6 +48,27 @@ test("writeCache replaces the cache file and leaves no temp file behind", async 
   expect(await readdir(dir)).toEqual(["answers.json"]);
 });
 
+test("fillCache overlaps requests up to the concurrency limit and fetches every row", async () => {
+  const dir = await tempDir();
+  const path = join(dir, "answers.json");
+  const rows = Array.from({ length: 12 }, (_, i) => ticket(`t${i}`));
+  let inFlight = 0;
+  let peak = 0;
+  const ask = async () => {
+    inFlight++;
+    peak = Math.max(peak, inFlight);
+    await Bun.sleep(5);
+    inFlight--;
+    return { model: "jev-test", answers: makeAnswers() };
+  };
+
+  const { cache, errored } = await fillCache(rows, {}, { refresh: false, fingerprint: FP, path, ask, concurrency: 4 });
+
+  expect(errored).toEqual([]);
+  expect(Object.keys(cache).length).toBe(12);
+  expect(peak).toBe(4);
+});
+
 test("fillCache stops asking once a cache write fails", async () => {
   const dir = await tempDir();
   await writeFile(join(dir, "not-a-dir"), "");
@@ -58,7 +79,7 @@ test("fillCache stops asking once a cache write fails", async () => {
     return { model: "jev-test", answers: makeAnswers() };
   };
 
-  const run = fillCache([ticket("a"), ticket("b")], {}, { refresh: false, fingerprint: FP, path, ask });
+  const run = fillCache([ticket("a"), ticket("b")], {}, { refresh: false, fingerprint: FP, path, ask, concurrency: 1 });
 
   await expect(run).rejects.toThrow("cache write failed");
   expect(asked).toBe(1);

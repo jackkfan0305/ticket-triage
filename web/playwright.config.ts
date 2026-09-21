@@ -8,7 +8,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : [["list"]],
-  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.02 } },
+  // 0.02 was too loose to be a regression test: at 1440 it is 25,900 pixels,
+  // enough that the old table baseline still "matched" the canvas that
+  // replaced it, and eight baselines were never rewritten. This absorbs
+  // font-rendering jitter and nothing larger.
+  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.002 } },
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
     trace: "on-first-retry",

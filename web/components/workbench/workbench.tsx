@@ -1,19 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { DEFAULT_PARAMS, type PolicyParams } from "../../../src/triage/policy";
-import { AnswersSchema, type Ticket } from "../../../src/types";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PRIORITY_FILTERS, type FilterKey } from "@/lib/labels";
-import { gsap, prefersReducedMotion, useGSAP } from "@/lib/motion";
+import type { Ticket } from "../../../src/types";
+import { useRunStore } from "@/components/run-store";
+import { Floor, type FloorHandle } from "../floor/floor";
+import { Hud, SPEEDS, TICKET_COUNTS, type RunState } from "../floor/hud";
+import { classify } from "@/lib/classify";
+import type { FilterKey } from "@/lib/labels";
 import { pooled } from "@/lib/pool";
 import { visibleRows, type Row, type RunResult } from "@/lib/rows";
-import { Board } from "./board";
-import { Compose } from "./compose";
-import { Detail } from "./detail";
-import { LatencyRail } from "./latency-rail";
-import { PolicyDrawer } from "./policy-drawer";
 
 /**
  * Eight in flight. Firing sixty at once turns every latency into queue wait.
@@ -27,54 +23,52 @@ import { PolicyDrawer } from "./policy-drawer";
  */
 const POOL_SIZE = 8;
 
-type View = "index" | "detail" | "compose";
+/** The rows the floor starts with. Answers already in hand carry over, so
+ *  widening the sample keeps what the run has already decided. */
+const seedRows = (
+  tickets: readonly Ticket[],
+  results: ReadonlyMap<string, RunResult>,
+): Row[] =>
+  tickets.map((ticket) => ({
+    id: ticket.id,
+    subject: ticket.subject,
+    body: ticket.body,
+    live: results.get(ticket.id) ?? null,
+    pending: false,
+    own: false,
+  }));
 
 type WorkbenchProps = {
-  cachedModel: string;
-  seed: (Ticket & { answers: unknown })[];
+  seed: Ticket[];
 };
 
-async function classify(ticket: { subject: string; body: string }): Promise<RunResult> {
-  const response = await fetch("/api/classify", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(ticket),
-  });
-  const payload = (await response.json()) as { model?: string; answers?: unknown; latencyMs?: number; error?: string };
-  if (!response.ok) throw new Error(payload.error ?? `Request failed (${response.status}).`);
-  return {
-    model: payload.model ?? "unknown",
-    answers: AnswersSchema.parse(payload.answers),
-    latencyMs: payload.latencyMs ?? 0,
-  };
-}
+export function Workbench({ seed }: WorkbenchProps) {
+  const { results, record } = useRunStore();
 
-export function Workbench({ cachedModel, seed }: WorkbenchProps) {
-  const [rows, setRows] = useState<Row[]>(() =>
-    seed.map((ticket) => ({
-      id: ticket.id,
-      subject: ticket.subject,
-      body: ticket.body,
-      cached: AnswersSchema.parse(ticket.answers),
-      live: null,
-      pending: false,
-      own: false,
-    })),
-  );
+  const [count, setCount] = useState<number>(TICKET_COUNTS[0]);
+  // Seeded from the store, so coming back from a ticket finds the run intact.
+  // Reading it once on mount is the point: later answers arrive through the
+  // run itself, and re-reading the map would fight it.
+  const [rows, setRows] = useState<Row[]>(() => seedRows(seed.slice(0, TICKET_COUNTS[0]), results));
   const [params, setParams] = useState<PolicyParams>(DEFAULT_PARAMS);
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [view, setView] = useState<View>("index");
-  const [selected, setSelected] = useState<string | null>(seed[0]?.id ?? null);
   const [running, setRunning] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [paused, setPaused] = useState(false);
   const [wallMs, setWallMs] = useState<number | null>(null);
   const [liveModel, setLiveModel] = useState<string | null>(null);
-  const [composeBusy, setComposeBusy] = useState(false);
-  const [composeError, setComposeError] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
+  const [dev, setDev] = useState(false);
+  const [speedIndex, setSpeedIndex] = useState(0);
+  const [zoom, setZoom] = useState(100);
 
-  const main = useRef<HTMLElement>(null);
-  const ownCount = useRef(0);
+  const floor = useRef<FloorHandle>(null);
+
+  /** Bumped by Start and by Reset. A settled request from an older run is
+   *  discarded, and its worker throws out of the pool instead of fetching. */
+  const runId = useRef(0);
+  const active = useRef(false);
+  const pausedRef = useRef(false);
+  const waiting = useRef<(() => void)[]>([]);
 
   const shown = useMemo(() => visibleRows(rows, params, filter), [rows, params, filter]);
   const samples = useMemo(
@@ -82,66 +76,41 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
     [rows],
   );
   const seeded = rows.filter((row) => !row.own).length;
-  const selectedRow = rows.find((row) => row.id === selected) ?? null;
+  const routed = rows.filter((row) => !row.own && row.live !== null).length;
+  const unrouted = seeded - routed;
+  const speed = SPEEDS[speedIndex] ?? 1;
+
+  const runState: RunState =
+    seeded > 0 && unrouted === 0 ? "done" : running ? (paused ? "paused" : "running") : "ready";
 
   const patch = useCallback((id: string, change: Partial<Row>) => {
     setRows((current) => current.map((row) => (row.id === id ? { ...row, ...change } : row)));
   }, []);
 
-  const open = useCallback((id: string) => {
-    setSelected(id);
-    setView("detail");
+  /** Pause holds the pool at the next ticket rather than cancelling anything
+   *  already with the model, so every latency the run reports is a real one. */
+  const hold = useCallback((): Promise<void> => {
+    if (!pausedRef.current) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      waiting.current = [...waiting.current, resolve];
+    });
   }, []);
 
-  const step = useCallback(
-    (delta: number) => {
-      if (shown.length === 0) return;
-      const index = shown.findIndex((row) => row.id === selected);
-      if (index < 0) return;
-      const next = shown[(index + delta + shown.length) % shown.length];
-      if (next) setSelected(next.id);
-    },
-    [shown, selected],
-  );
-
-  // j/k, arrows and Escape drive the detail view from the keyboard
-  useEffect(() => {
-    if (view !== "detail") return;
-    const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, [role='slider']")) return;
-      if (event.key === "Escape") setView("index");
-      if (event.key === "j" || event.key === "ArrowDown") {
-        event.preventDefault();
-        step(1);
-      }
-      if (event.key === "k" || event.key === "ArrowUp") {
-        event.preventDefault();
-        step(-1);
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [view, step]);
-
-  // the view swap is what the eye follows, so it gets the transition
-  useGSAP(
-    () => {
-      if (prefersReducedMotion()) return;
-      gsap.from(main.current, { autoAlpha: 0, y: 6, duration: 0.26, ease: "power2.out" });
-    },
-    { dependencies: [view] },
-  );
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
-  }, [view, selected]);
+  const release = useCallback(() => {
+    const queued = waiting.current;
+    waiting.current = [];
+    for (const resolve of queued) resolve();
+  }, []);
 
   const runLive = useCallback(async () => {
-    if (running) return;
+    if (active.current) return;
+    active.current = true;
+    const id = (runId.current += 1);
+
     setRunning(true);
+    setPaused(false);
+    pausedRef.current = false;
     setRunError(null);
-    setProgress(0);
     setWallMs(null);
 
     const targets = rows.filter((row) => !row.own);
@@ -154,150 +123,141 @@ export function Workbench({ cachedModel, seed }: WorkbenchProps) {
     await pooled(
       targets,
       POOL_SIZE,
-      (row) => classify({ subject: row.subject, body: row.body }),
+      async (row) => {
+        if (id !== runId.current) throw new Error("run reset");
+        await hold();
+        if (id !== runId.current) throw new Error("run reset");
+        return classify({ subject: row.subject, body: row.body });
+      },
       ({ item, value, error }) => {
+        if (id !== runId.current) return;
         if (error) {
           failures += 1;
           // the reason matters more than the count: sixty identical failures
           // are one problem, and the message names it
           firstReason ??= error instanceof Error ? error.message : String(error);
         }
-        if (value) setLiveModel(value.model);
+        if (value) {
+          setLiveModel(value.model);
+          // the store is what a ticket's own route reads, so it gets the
+          // answer at the same moment the floor does
+          record(item.id, value);
+        }
         // each response lands on its own, so rows resolve one at a time
         patch(item.id, { pending: false, live: value ?? null });
-        setProgress((done) => done + 1);
       },
     );
+
+    active.current = false;
+    if (id !== runId.current) return;
 
     setWallMs(Math.round(performance.now() - started));
     setRunning(false);
     if (failures > 0) {
       setRunError(`${failures} of ${targets.length} tickets failed. ${firstReason ?? ""}`.trim());
     }
-  }, [running, rows, patch]);
+  }, [rows, patch, hold, record]);
 
-  const submitCompose = useCallback(
-    async ({ subject, body }: { subject: string; body: string }) => {
-      setComposeBusy(true);
-      setComposeError(null);
-      ownCount.current += 1;
-      const id = `own-${ownCount.current}`;
+  /** Resets the run and nothing else. The arrangement of the floor belongs to
+   *  the reader, and Tidy is the only thing that puts it back. */
+  const resetRun = useCallback(() => {
+    runId.current += 1;
+    pausedRef.current = false;
+    setPaused(false);
+    release();
+    setRunning(false);
+    setWallMs(null);
+    setRunError(null);
+    setLiveModel(null);
+    setRows((current) => current.map((row) => (row.own ? row : { ...row, live: null, pending: false })));
+  }, [release]);
 
+  /** Changing the sample ends the run in flight rather than letting its
+   *  answers land on a floor that no longer holds those tickets. Written
+   *  tickets are the reader's own and stay. */
+  const changeCount = useCallback(
+    (next: number) => {
+      runId.current += 1;
+      active.current = false;
+      pausedRef.current = false;
+      setPaused(false);
+      release();
+      setRunning(false);
+      setWallMs(null);
+      setRunError(null);
+      setCount(next);
       setRows((current) => [
-        { id, subject: subject || "(no subject)", body, cached: null, live: null, pending: true, own: true },
-        ...current,
+        ...current.filter((row) => row.own),
+        ...seedRows(seed.slice(0, next), results),
       ]);
-      setSelected(id);
-      setView("detail");
-
-      try {
-        const result = await classify({ subject, body });
-        setLiveModel(result.model);
-        patch(id, { pending: false, live: result });
-      } catch (error) {
-        setRows((current) => current.filter((row) => row.id !== id));
-        setComposeError(error instanceof Error ? error.message : "Classification failed.");
-        setView("compose");
-      } finally {
-        setComposeBusy(false);
-      }
     },
-    [patch],
+    [seed, results, release],
   );
 
+  const toggleRun = useCallback(() => {
+    if (runState === "done") return;
+    if (!running) {
+      void runLive();
+      return;
+    }
+    if (pausedRef.current) {
+      pausedRef.current = false;
+      setPaused(false);
+      release();
+    } else {
+      pausedRef.current = true;
+      setPaused(true);
+    }
+  }, [runState, running, runLive, release]);
+
   return (
-    <div className="gutter pb-18">
-      <header className="flex flex-wrap items-center gap-3.5 border-b border-line py-4">
-        <h1 className="m-0 flex items-baseline gap-2.5 text-[15px] font-medium tracking-tight">
-          Triage&nbsp;Workbench
-        </h1>
-        <p className="num m-0 rounded border border-line bg-panel-2 px-1.5 py-0.5 text-[11px] tracking-[0.04em] uppercase text-ink-2">
-          {liveModel ?? cachedModel}
-        </p>
-        <p
-          className={`num m-0 rounded border px-1.5 py-0.5 text-[11px] tracking-[0.04em] uppercase ${
-            liveModel
-              ? "border-p-urgent bg-[var(--p-urgent-bg)] text-p-urgent"
-              : "border-line bg-panel-2 text-ink-2"
-          }`}
-        >
-          {liveModel ? "live run" : "cached run"}
-        </p>
-        <span className="flex-1" />
-        <Button variant="outline" size="sm" onClick={() => setParams(DEFAULT_PARAMS)} className="h-8 text-xs">
-          Reset params
-        </Button>
-        <Button size="sm" onClick={runLive} disabled={running} className="h-8 text-xs">
-          {running ? `Receiving · ${progress} / ${seeded}` : `Run live · ${seeded} tickets`}
-        </Button>
-      </header>
+    <>
+      {/* the page's own heading, ahead of the chrome in reading order; the
+          floor is a canvas and has nothing to draw it on */}
+      <h1 className="sr-only">Ticket Triage</h1>
 
-      <PolicyDrawer params={params} onChange={setParams} />
+      <Hud
+        onFloor
+        runState={runState}
+        onRun={toggleRun}
+        onReset={resetRun}
+        speed={speed}
+        onSpeed={() => setSpeedIndex((current) => (current + 1) % SPEEDS.length)}
+        dev={dev}
+        onDev={() => setDev((current) => !current)}
+        count={count}
+        onCount={changeCount}
+        runError={runError}
+        camera={{
+          zoom,
+          onZoomIn: () => floor.current?.zoomIn(),
+          onZoomOut: () => floor.current?.zoomOut(),
+          onFrame: () => floor.current?.frame(),
+          onTidy: () => floor.current?.tidy(),
+        }}
+        samples={samples}
+        wallMs={wallMs}
+        total={seeded}
+        model={liveModel}
+        params={params}
+        onParams={setParams}
+        onResetParams={() => setParams(DEFAULT_PARAMS)}
+      />
 
-      <main ref={main} className="block pt-1.5">
-        <section id="view-index" hidden={view !== "index"} aria-labelledby="tickets-heading">
-          <LatencyRail samples={samples} wallMs={wallMs} total={seeded} />
-
-          {runError && (
-            <p className="num py-2 text-[11.5px] text-p-high" role="status">
-              {runError}
-            </p>
-          )}
-
-          {/* stacked while narrow: on one wrapping row the chips break around
-              the heading and it lands in the middle of its own group */}
-          <div className="flex flex-col items-start gap-2.5 pt-5 pb-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-            <h2 id="tickets-heading" className="cap m-0 whitespace-nowrap text-ink-2">
-              Tickets
-              <span className="num ml-1.5 text-[11px] font-light tracking-normal normal-case text-ink-3">
-                {shown.length === rows.length ? rows.length : `${shown.length} / ${rows.length}`}
-              </span>
-            </h2>
-
-            <ToggleGroup
-              value={[filter]}
-              // single-select; clicking the pressed chip clears it, which reads as "all"
-              onValueChange={(next) => setFilter((next.at(-1) as FilterKey | undefined) ?? "all")}
-              aria-label="Filter tickets by outcome"
-              spacing={1}
-              className="w-full flex-wrap sm:w-auto sm:flex-1"
-            >
-              {PRIORITY_FILTERS.map((key) => (
-                <ToggleGroupItem
-                  key={key}
-                  value={key}
-                  variant="outline"
-                  size="sm"
-                  // an explicit colour, not an inherited one: Base UI's toggle
-                  // leaves `color` to inheritance and the engines disagreed
-                  className="num h-7 rounded-full border-line px-2.5 text-[11px] text-ink-3 hover:text-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-background"
-                >
-                  {key}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-
-            <Button variant="outline" size="sm" onClick={() => setView("compose")} className="h-8 text-xs">
-              Write your own ticket
-            </Button>
-          </div>
-
-          <Board rows={shown} params={params} onOpen={open} />
-        </section>
-
-        <section id="view-detail" hidden={view !== "detail"} aria-label="Ticket evidence">
-          <Detail row={selectedRow} params={params} onBack={() => setView("index")} onStep={step} />
-        </section>
-
-        <section id="view-compose" hidden={view !== "compose"} aria-label="Write your own ticket">
-          <Compose
-            busy={composeBusy}
-            error={composeError}
-            onSubmit={submitCompose}
-            onBack={() => setView("index")}
-          />
-        </section>
+      {/* the floor is the page: a fixed section, so the chrome floats over it
+          and nothing above it steals height */}
+      <main className="fixed inset-0" aria-label="Triage floor">
+        <Floor
+          ref={floor}
+          onZoom={setZoom}
+          rows={shown}
+          params={params}
+          filter={filter}
+          onFilter={setFilter}
+          poolSize={POOL_SIZE}
+          speed={speed}
+        />
       </main>
-    </div>
+    </>
   );
 }

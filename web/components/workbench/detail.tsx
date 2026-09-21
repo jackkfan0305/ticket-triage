@@ -1,9 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { ArrowDown, ArrowLeft, ArrowUp } from "lucide-react";
 import type { PolicyParams } from "../../../src/triage/policy";
-import { Button } from "@/components/ui/button";
 import { gsap, prefersReducedMotion, useGSAP } from "@/lib/motion";
 import { answersOf, leastCertain, nearestEdge, verdictOf, type Row } from "@/lib/rows";
 import { Counter } from "./counter";
@@ -17,8 +15,6 @@ import { PRIORITY_TEXT } from "./priority";
 type DetailProps = {
   row: Row | null;
   params: PolicyParams;
-  onBack: () => void;
-  onStep: (delta: number) => void;
 };
 
 function Stat({
@@ -45,7 +41,7 @@ function Stat({
   );
 }
 
-export function Detail({ row, params, onBack, onStep }: DetailProps) {
+export function Detail({ row, params }: DetailProps) {
   const scope = useRef<HTMLDivElement>(null);
   const answers = row ? answersOf(row) : null;
 
@@ -61,35 +57,6 @@ export function Detail({ row, params, onBack, onStep }: DetailProps) {
 
   return (
     <div ref={scope}>
-      <div className="flex flex-wrap items-center gap-2.5 pt-4 pb-2.5">
-        <Button variant="outline" size="sm" onClick={onBack} className="h-8 gap-1.5 text-xs">
-          <ArrowLeft aria-hidden="true" className="size-3.5" />
-          All tickets
-        </Button>
-        <span className="num text-[11px] text-ink-3">{row.id}</span>
-        <span className="flex-1" />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onStep(-1)}
-          className="h-8 gap-1.5 text-xs"
-          aria-label="Previous ticket"
-        >
-          <ArrowUp aria-hidden="true" className="size-3.5" />
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onStep(1)}
-          className="h-8 gap-1.5 text-xs"
-          aria-label="Next ticket"
-        >
-          <ArrowDown aria-hidden="true" className="size-3.5" />
-          Next
-        </Button>
-      </div>
-
       {answers === null ? (
         <p className="py-12 text-center text-xs text-ink-3" aria-live="polite">
           Waiting on Jev…
@@ -117,8 +84,6 @@ function DetailBody({
   const gated = verdict.isSecurity || verdict.isOutage || verdict.isJunk;
   const latency = row.live?.latencyMs ?? null;
 
-  const cachedVerdict = row.cached && row.live ? verdictOf(row.cached, params) : null;
-  const drifted = cachedVerdict !== null && cachedVerdict.priority !== verdict.priority;
 
   return (
     <>
@@ -183,12 +148,6 @@ function DetailBody({
           {weakest.confidence.toFixed(2)}
         </Stat>
       </dl>
-
-      {drifted && cachedVerdict && (
-        <p className="evidence-step num mb-4 border-l-2 border-p-high pl-2 text-[11.5px] text-ink-2">
-          Live run disagrees with the cached pass: {cachedVerdict.priority} → {verdict.priority}.
-        </p>
-      )}
 
       <div className="evidence-step">
         <EvidenceGates answers={answers} params={params} verdict={verdict} />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,10 +30,18 @@ type ComposeProps = {
   busy: boolean;
   error: string | null;
   onSubmit: (input: { subject: string; body: string }) => void;
-  onBack: () => void;
 };
 
-export function Compose({ busy, error, onSubmit, onBack }: ComposeProps) {
+/** A counter that turns red on the cap the route would reject. */
+function Counted({ length, max }: { length: number; max: number }) {
+  return (
+    <p className={`num mt-1.5 text-end text-[11px] ${length > max ? "text-p-urgent" : "text-ink-3"}`}>
+      {length} / {max}
+    </p>
+  );
+}
+
+export function Compose({ busy, error, onSubmit }: ComposeProps) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
@@ -43,29 +50,21 @@ export function Compose({ busy, error, onSubmit, onBack }: ComposeProps) {
   const empty = body.trim().length === 0;
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-2.5 pt-4 pb-2.5">
-        <Button variant="outline" size="sm" onClick={onBack} className="h-8 gap-1.5 text-xs">
-          <ArrowLeft aria-hidden="true" className="size-3.5" />
-          All tickets
-        </Button>
-      </div>
+    <>
+      <p className="mx-auto m-0 mb-6 max-w-[54ch] text-center text-[13px] leading-relaxed text-balance text-ink-2">
+        Paste anything a customer might send. It goes through the same seven questions and the same
+        policy as the eval set, and comes back with the full evidence behind the verdict.
+      </p>
 
       <form
-        className="max-w-[45rem]"
         onSubmit={(event) => {
           event.preventDefault();
           if (busy || empty || overSubject || overBody) return;
           onSubmit({ subject: subject.trim(), body: body.trim() });
         }}
+        className="rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5"
       >
-        <h2 className="m-0 mb-1 text-base font-medium tracking-tight">Write your own ticket</h2>
-        <p className="m-0 mb-4 max-w-[62ch] text-[12.5px] leading-relaxed text-ink-2">
-          Paste anything a customer might send. It goes through the same seven questions and the same policy as the
-          sixty above, and lands in the board with full evidence.
-        </p>
-
-        <div className="mb-3">
+        <div className="mb-5">
           <Label htmlFor="compose-subject" className="cap mb-1.5 block text-ink-3">
             Subject
           </Label>
@@ -77,12 +76,10 @@ export function Compose({ busy, error, onSubmit, onBack }: ComposeProps) {
             onChange={(event) => setSubject(event.target.value)}
             className="bg-panel-2"
           />
-          <p className={`num mt-1 text-right text-[11px] ${overSubject ? "text-p-urgent" : "text-ink-3"}`}>
-            {subject.length} / {SUBJECT_MAX}
-          </p>
+          <Counted length={subject.length} max={SUBJECT_MAX} />
         </div>
 
-        <div className="mb-3">
+        <div className="mb-5">
           <Label htmlFor="compose-body" className="cap mb-1.5 block text-ink-3">
             Body
           </Label>
@@ -90,52 +87,60 @@ export function Compose({ busy, error, onSubmit, onBack }: ComposeProps) {
             id="compose-body"
             value={body}
             maxLength={BODY_MAX}
-            rows={7}
+            rows={8}
             placeholder="Describe the problem the way a customer would…"
             onChange={(event) => setBody(event.target.value)}
-            className="min-h-32 bg-panel-2"
+            className="min-h-44 bg-panel-2"
           />
-          <p className={`num mt-1 text-right text-[11px] ${overBody ? "text-p-urgent" : "text-ink-3"}`}>
-            {body.length} / {BODY_MAX}
-          </p>
+          <Counted length={body.length} max={BODY_MAX} />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* the action stays in the flow of the card, and stacks before it
+            crowds the hint beside it */}
+        <div className="flex flex-col-reverse items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-end">
+          {empty && (
+            <span className="text-center text-xs text-ink-3 sm:me-auto sm:text-start">
+              Body is required.
+            </span>
+          )}
           <Button type="submit" disabled={busy || empty || overSubject || overBody}>
             {busy ? "Classifying…" : "Classify"}
           </Button>
-          {empty && <span className="text-xs text-ink-3">Body is required.</span>}
         </div>
 
         {error && (
-          <Alert variant="destructive" className="mt-3">
+          <Alert variant="destructive" className="mt-4">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
       </form>
 
-      <section aria-labelledby="samples-heading" className="mt-5 max-w-[45rem] border-t border-line-soft pt-3">
-        <h3 id="samples-heading" className="cap mb-2 text-ink-3">
+      <section aria-labelledby="samples-heading" className="mt-8">
+        <h2 id="samples-heading" className="cap mb-2.5 text-center text-ink-3">
           Or start from one of these
-        </h3>
-        <ul className="m-0 list-none space-y-1.5 p-0">
+        </h2>
+        {/* three side by side while each still holds a readable line, one
+            column once they do not */}
+        <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-3">
           {SAMPLES.map((sample, index) => (
-            <li key={sample.subject}>
+            <li key={sample.subject} className="flex">
               <button
                 type="button"
                 onClick={() => {
                   setSubject(sample.subject);
                   setBody(sample.body);
                 }}
-                className="block w-full rounded-lg border border-line bg-panel-2 px-2.5 py-2 text-left text-xs text-ink-2 transition-colors hover:border-brand hover:text-ink"
+                className="flex w-full flex-col gap-1 rounded-xl border border-line bg-panel-2 px-3 py-2.5 text-start text-xs text-ink-2 transition-colors hover:border-brand hover:text-ink"
               >
-                <span className="num block text-[11px] text-ink-3">sample {index + 1}</span>
-                {sample.subject}
+                <span className="num text-[10.5px] tracking-[0.04em] text-ink-3">
+                  sample {index + 1}
+                </span>
+                <span className="line-clamp-3 leading-snug">{sample.subject}</span>
               </button>
             </li>
           ))}
         </ul>
       </section>
-    </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { RunStoreProvider } from "@/components/run-store";
 import "./globals.css";
 
 // one family, four weights; body sits at 300
@@ -18,7 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body>{children}</body>
+      <body>
+        {/* the session's answers, shared by the floor and every ticket route */}
+        <RunStoreProvider>{children}</RunStoreProvider>
+      </body>
     </html>
   );
 }
