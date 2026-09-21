@@ -8,7 +8,7 @@ import { PRIORITIES, TEAM_CHOICES } from "../src/types";
 import { computeMetrics, type Metrics, type Scored } from "./metrics";
 import { DEFAULT_PARAMS, decide, type PolicyParams } from "../src/triage/policy";
 import { questionsFingerprint } from "./fingerprint";
-import { CacheSchema, cacheStatus, fillCache, isStale, type Cache } from "./cache";
+import { CacheSchema, cacheStatus, DEFAULT_CONCURRENCY, fillCache, isStale, type Cache } from "./cache";
 
 const EVALSET = new URL("../tests/fixtures/evalset.csv", import.meta.url);
 const CACHE = fileURLToPath(new URL("../tests/fixtures/answers.json", import.meta.url));
@@ -45,6 +45,19 @@ function score(rows: readonly EvalRow[], cache: Cache, params: PolicyParams, fin
 }
 
 const pct = (x: number | null) => (x === null ? "n/a" : `${(x * 100).toFixed(1)}%`);
+
+const secs = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+
+// Per-request times are wall time under whatever concurrency ran, so they rise
+// as workers are added; the total is what actually shortens. Median against max
+// says whether a slow run was uniform or one outlier.
+function timing(durations: readonly number[], totalMs: number, workers: number): string {
+  if (durations.length === 0) return `no requests this run, ${secs(totalMs)} total`;
+  const sorted = durations.toSorted((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)]!;
+  const mean = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+  return `${durations.length} requests in ${secs(totalMs)} at concurrency ${workers}: mean ${mean}ms, median ${median}ms, min ${sorted[0]}ms, max ${sorted.at(-1)}ms`;
+}
 
 function summary(m: Metrics, urgentCount: number, noneCount: number) {
   return {
@@ -107,8 +120,15 @@ const { values } = parseArgs({
   options: {
     refresh: { type: "boolean", default: false },
     sweep: { type: "boolean", default: false },
+    concurrency: { type: "string", default: String(DEFAULT_CONCURRENCY) },
   },
 });
+
+const concurrency = Number(values.concurrency);
+if (!Number.isInteger(concurrency) || concurrency < 1) {
+  console.error(`--concurrency must be a positive integer, got "${values.concurrency}"`);
+  process.exit(2);
+}
 
 const rows = await loadRows();
 const fingerprint = questionsFingerprint();
@@ -126,14 +146,16 @@ if (values.sweep && values.refresh) {
 // --sweep is cache-only: it names what it cannot score instead of paying to fetch it.
 const start = await loadCache();
 let client: TypeSafeClient | undefined;
-const { cache, errored } = values.sweep
-  ? { cache: start, errored: [] as string[] }
+const runStarted = performance.now();
+const { cache, errored, durations } = values.sweep
+  ? { cache: start, errored: [] as string[], durations: [] as number[] }
   : await fillCache(rows, start, {
       refresh: values.refresh,
       fingerprint,
       path: CACHE,
       // Built on first use, so a run with nothing to fetch never creates a client.
       ask: (row) => askJev(row, (client ??= new TypeSafeClient())),
+      concurrency,
     });
 if (values.sweep) {
   const { missing, stale } = cacheStatus(rows, cache, fingerprint);
@@ -150,6 +172,7 @@ const staleSkipped = rows.filter(
 console.log(
   `${Object.keys(cache).length}/${rows.length} cached, ${errored.length} errored this run, ${scored.length} labelled and scored, ${staleSkipped} skipped as stale`,
 );
+console.log(timing(durations, performance.now() - runStarted, concurrency));
 
 if (scored.length === 0) {
   console.log("no labelled rows yet: fill expected_priority and expected_team in tests/fixtures/evalset.csv");

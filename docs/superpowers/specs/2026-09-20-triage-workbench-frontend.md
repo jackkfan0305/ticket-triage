@@ -80,17 +80,50 @@ correct. This bug already happened once in the mockup.
 
 ### Index
 
-Every ticket on one page.
+Every ticket on one floor.
 
-- Policy drawer, collapsed, at the top. Open from any view. Its closed row summarises the
-  current thresholds and floor.
-- Latency rail. This is the **only** page-level statistic. Collapses to a single line when
-  no live run has happened.
-- Toolbar: ticket count, filter chips (all / urgent / high / normal / low / needs-triage),
-  and a "Write your own ticket" button.
-- Board: a real table. Columns are Ticket (id over subject), Priority, Team, Urgency, Latency.
-  Full width, so subjects do not truncate to two lines. Rows are buttons. A 3px priority
-  stripe runs down the leading edge.
+- Chrome floats over the floor as rounded panels rather than sitting above it in a header
+  row, which on a full-bleed canvas would steal the height the floor needs. `.hud` pins a
+  panel to a viewport corner and carries the safe-area inset itself.
+- Top left: the title, and nothing but the title. `<h1>` reads **Ticket Triage**. The model
+  chip and the run-state chip are gone: run state has two honest homes already, the
+  Start/Pause/Resume/Done label on the primary button and the `<n> routed · <n> waiting`
+  readout beside it, and the model identifier belongs with the statistics it qualifies.
+- Top right: the readout, a playback-speed cycle, the primary run button, Reset, Write your
+  own ticket, a developer-mode toggle and a theme toggle. Normal and developer mode are one
+  icon button carrying `aria-pressed`, matching the theme button beside it.
+- Bottom right: zoom out, the live percentage, zoom in, frame everything, tidy.
+- Bottom left: the hint in normal mode, the developer panel in developer mode. The developer
+  panel owns the latency statistics, the model identifier, the policy thresholds and
+  `Reset params`, which sits beside the thresholds it resets.
+- Pause holds the pool at the next ticket rather than cancelling anything already with the
+  model, so every latency the run reports is a real one. Reset resets the run and nothing
+  else: the arrangement of the floor belongs to the reader, and Tidy is the only thing that
+  puts it back.
+- Filtering moved onto the ticket sheet, beside the search field, where the tickets it
+  filters are.
+- Inter stays the only family, at the four weights `layout.tsx` loads. The published draft
+  used IBM Plex; that was a draft-only choice. Figures rely on the `.num` utility and the
+  `font-variant-numeric: tabular-nums` already set on `body`.
+- Floor: a canvas, not a table. One fixed viewport holds a transformed world layer, and the
+  camera is `{x, y, k}` applied to it. The unrouted inbox and the seven destinations (six
+  teams plus a `none` holding pen) are cards at world coordinates, wired to the inbox by
+  dashed bezier routes. A ticket that resolves flies along its team's route and lands on that
+  card; the count ticks on landing, not on the answer arriving. Drag the background to pan, a
+  card to move it, scroll or pinch to zoom; arrow keys pan, `+`/`-` zoom, `0` frames
+  everything, Tidy returns every card to its home.
+- **Cards exert no force on each other.** No separation, no collision, no link springs. Each
+  card is an independent body carrying only its own momentum, so it goes exactly where it is
+  thrown and nothing moves it afterwards. The floor's edge is the only wall. The model lives
+  in `web/lib/physics.ts` as pure functions; nothing there reads a second body.
+- Dragging never sweeps a text selection. The `.no-select` utility covers the world layer and
+  the cards, `pointerdown` calls `preventDefault()` away from controls, and both the viewport
+  and every card set `touch-action: none`. The ticket sheet and the evidence view are
+  excluded: their text stays selectable.
+- A card's lists are a display of its pile. The world layer carries the camera's scale, so a
+  control inside it shrinks below the 24px target floor; tickets are opened from the ticket
+  sheet, which sits outside that transform.
+- Three tokens belong to the floor and nothing else: `--floor`, `--floor-dot` and `--route`.
 
 **No accuracy metrics.** `evalset.csv` has zero labelled rows, so exact match, urgent recall
 and routing accuracy cannot be computed from anything real. Do not add them, and do not
@@ -98,9 +131,30 @@ score against `src_priority` or `src_queue`: that data is 3-level with no `urgen
 and its 10 queue categories do not map onto the six teams. They return once a human labels
 the set.
 
-### Detail
+### Ticket
 
-One ticket, in depth. Reached by clicking a board row.
+One ticket, in depth, at its own address: `/tickets/[id]`. Every ticket reference on the
+floor is a link to it, so a ticket can be opened in a tab, bookmarked, shared, and returned
+from with the browser's back button.
+
+The page is a server component that reads the ticket's subject and body from the eval set by
+id and 404s on an unknown one. Its evidence is a client island fed by a run store that the
+floor shares. Two entry paths, and the page says which one it took:
+
+- A soft navigation from the floor arrives with the run's own answer already in the store, so
+  the evidence renders with the latency the run measured.
+- A cold load has an empty store, because no answers are persisted between reloads, so the
+  island classifies that one ticket through `/api/classify`. One ticket, one request, guarded
+  by a ref so strict mode's second effect pass does not send a second.
+
+The verdict is read under the default policy. The thresholds on the floor are that page's own
+state and do not reach across a route.
+
+A ticket the reader wrote is not in the eval set, so nothing could load it back; the compose
+view keeps its result in place rather than gaining a route.
+
+The run store also seeds the floor on mount, and the floor's bodies and camera live outside
+component state, so coming back from a ticket finds the run and the arrangement intact.
 
 - Bar: boxed "← All tickets", the ticket id, boxed "↑ Previous" / "↓ Next" stepping the
   filtered set. `j`/`k`, arrow keys and Escape work from the keyboard. No rule under the bar.

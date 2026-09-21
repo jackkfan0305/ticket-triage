@@ -1,11 +1,13 @@
-"""Sample 60 English tickets into tests/fixtures/evalset.csv for hand labelling.
+"""Sample 1000 English tickets into tests/fixtures/evalset.csv.
 
 Source: Tobi-Bueck/customer-support-tickets on Hugging Face, CC-BY-NC-4.0.
-Run once: uv run --with datasets scripts/build_evalset.py
+Run: uv run --with datasets scripts/build_evalset.py
 
-The dataset's priority and queue columns are sampling strata only. They are
-copied as src_priority and src_queue for reference, never used as labels.
-Stratified on high/medium/low: critical and very_low occur only in German rows.
+A uniform sample, not a stratified one. The 60-row version stratified on
+priority and capped each queue so a hand-labeller saw a balanced spread; at
+this size nobody hand-labels, and the board wants the mix the dataset
+actually has. The priority and queue columns stay as src_priority and
+src_queue for reference and are never used as labels.
 """
 
 import csv
@@ -18,49 +20,34 @@ from datasets import load_dataset
 
 OUT = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "evalset.csv"
 SEED = 7
-PRIORITIES = ["high", "medium", "low"]
-PER_PRIORITY = {"high": 19, "medium": 18, "low": 18}  # 55 = 60 minus HR; the extra row goes to high, the stratum nearest urgent
-MAX_PER_QUEUE = 3  # within one priority, so a big queue cannot crowd out the rest
-HR_QUEUE = "Human Resources"
-HR_COUNT = 5  # outside any SaaS roster: the only way to exercise the no-match branch
+SAMPLE_SIZE = 1000
 FIELDS = ["id", "subject", "body", "src_priority", "src_queue", "expected_priority", "expected_team"]
 
 
-def pick_for_priority(rows, priority, rng):
-    pool = [r for r in rows if r["priority"] == priority]
-    rng.shuffle(pool)
-    per_queue = Counter()
-    chosen = []
-    for r in pool:
-        if per_queue[r["queue"]] < MAX_PER_QUEUE:
-            per_queue[r["queue"]] += 1
-            chosen.append(r)
-        if len(chosen) == PER_PRIORITY[priority]:
-            return chosen
-    sys.exit(f"only {len(chosen)} usable rows for priority {priority}")
-
-
-def sample(rows, rng):
-    hr = rng.sample([r for r in rows if r["queue"] == HR_QUEUE], HR_COUNT)
-    rest = [r for r in rows if r["queue"] != HR_QUEUE]
-    return hr + [r for p in PRIORITIES for r in pick_for_priority(rest, p, rng)]
+def existing_labels(path):
+    """Hand labels are the one thing here that cannot be regenerated."""
+    if not path.exists():
+        return 0
+    with path.open(newline="") as f:
+        return sum(bool(r.get("expected_priority") or r.get("expected_team")) for r in csv.DictReader(f))
 
 
 def main():
-    if OUT.exists():
-        sys.exit(f"{OUT} exists and may hold hand labels. Delete it first to rebuild.")
+    labelled = existing_labels(OUT)
+    if labelled:
+        sys.exit(f"{OUT} holds {labelled} hand-labelled rows. Move it aside first to rebuild.")
 
     ds = load_dataset("Tobi-Bueck/customer-support-tickets", split="train")
     rows = [
         {**r, "id": f"hf-{i}"}
         for i, r in enumerate(ds)
-        if r["language"] == "en"
+        if r["language"] == "en" and (r["body"] or "").strip()
     ]
-    picked = sample(rows, random.Random(SEED))
+    if len(rows) < SAMPLE_SIZE:
+        sys.exit(f"only {len(rows)} English rows with a body; need {SAMPLE_SIZE}")
 
-    assert len(picked) == HR_COUNT + sum(PER_PRIORITY.values()) == 60
-    assert len({r["id"] for r in picked}) == 60, "duplicate ticket ids"
-    assert sum(r["queue"] == HR_QUEUE for r in picked) == HR_COUNT
+    picked = random.Random(SEED).sample(rows, SAMPLE_SIZE)
+    assert len({r["id"] for r in picked}) == SAMPLE_SIZE, "duplicate ticket ids"
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with OUT.open("w", newline="") as f:
@@ -76,7 +63,10 @@ def main():
                 "expected_priority": "",
                 "expected_team": "",
             })
+
     print(f"wrote {len(picked)} rows to {OUT}")
+    print("queues:", dict(Counter(r["queue"] for r in picked).most_common()))
+    print("priorities:", dict(Counter(r["priority"] for r in picked).most_common()))
 
 
 if __name__ == "__main__":

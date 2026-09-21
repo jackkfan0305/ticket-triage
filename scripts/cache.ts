@@ -39,11 +39,18 @@ export async function writeCache(path: string, cache: Cache): Promise<void> {
   await rename(tmp, path);
 }
 
+// The API takes one ticket per request, so throughput is entirely client-side.
+// Jev allows 1,200 requests a minute, which at this workload's latency is about
+// 21 in flight; 8 keeps a background refresh well under that. Pass
+// --concurrency to trade that headroom for a faster refresh.
+export const DEFAULT_CONCURRENCY = 8;
+
 type FillOptions = {
   refresh: boolean;
   fingerprint: string;
   path: string;
   ask: (row: Ticket) => Promise<JevResult>;
+  concurrency?: number;
 };
 
 // Fetches missing and stale rows (every row with refresh) and saves after each
@@ -53,8 +60,8 @@ type FillOptions = {
 export async function fillCache(
   rows: readonly Ticket[],
   start: Cache,
-  { refresh, fingerprint, path, ask }: FillOptions,
-): Promise<{ cache: Cache; errored: string[] }> {
+  { refresh, fingerprint, path, ask, concurrency = DEFAULT_CONCURRENCY }: FillOptions,
+): Promise<{ cache: Cache; errored: string[]; durations: number[] }> {
   const staleCount = rows.filter((r) => isStale(start[r.id], r, fingerprint)).length;
   if (staleCount > 0) {
     console.error(`${staleCount} cached answers are stale (questions or ticket text changed); refetching`);
@@ -63,24 +70,49 @@ export async function fillCache(
   const todo = rows.filter((r) => refresh || !start[r.id] || isStale(start[r.id], r, fingerprint));
   let cache = start;
   const errored: string[] = [];
-  for (const row of todo) {
-    let result: JevResult;
-    try {
-      result = await ask(row);
-    } catch (err) {
-      errored.push(row.id);
-      console.error(`${row.id} errored: ${errorMessage(err)}`);
-      continue;
+  // Per-request wall time, so a run reports what the API actually cost in seconds.
+  const durations: number[] = [];
+  // Workers share one cursor, so requests overlap. Saves are chained instead:
+  // one write runs at a time, in completion order, and every worker waits for
+  // the file to hold its answer before starting another request. A crash still
+  // keeps everything already paid for.
+  let next = 0;
+  let saveFailure: Error | undefined;
+  let saving: Promise<unknown> = Promise.resolve();
+
+  const worker = async () => {
+    while (next < todo.length && saveFailure === undefined) {
+      const row = todo[next++]!;
+      let result: JevResult;
+      const started = performance.now();
+      try {
+        result = await ask(row);
+      } catch (err) {
+        errored.push(row.id);
+        console.error(`${row.id} errored: ${errorMessage(err)}`);
+        continue;
+      }
+      const ms = Math.round(performance.now() - started);
+      durations.push(ms);
+      cache = { ...cache, [row.id]: { ...result, questions: fingerprint, request: requestFingerprint(row) } };
+      // Recorded rather than thrown: a throw here would abandon the other
+      // workers' in-flight answers instead of letting them settle.
+      saving = saving
+        .then(() => writeCache(path, cache))
+        .catch((err: unknown) => {
+          saveFailure ??= new Error(
+            `cache write failed after fetching ${row.id}; stopped before more requests: ${errorMessage(err)}`,
+          );
+        });
+      await saving;
+      console.error(`fetched ${row.id} in ${ms}ms`);
     }
-    cache = { ...cache, [row.id]: { ...result, questions: fingerprint, request: requestFingerprint(row) } };
-    try {
-      await writeCache(path, cache);
-    } catch (err) {
-      throw new Error(`cache write failed after fetching ${row.id}; stopped before more requests: ${errorMessage(err)}`);
-    }
-    console.error(`fetched ${row.id}`);
-  }
-  return { cache, errored };
+  };
+
+  const workers = Math.max(1, Math.min(Math.trunc(concurrency), todo.length));
+  await Promise.all(Array.from({ length: workers }, worker));
+  if (saveFailure !== undefined) throw saveFailure;
+  return { cache, errored, durations };
 }
 
 const errorMessage = (err: unknown) => (err instanceof Error ? err.message : String(err));

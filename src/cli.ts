@@ -14,8 +14,10 @@ if (!values.body?.trim()) {
 }
 
 try {
+  const started = performance.now();
   const { model, answers } = await askJev({ id: "cli", subject: values.subject, body: values.body });
-  console.log(JSON.stringify({ model, decision: decide(answers) }, null, 2));
+  const ms = Math.round(performance.now() - started);
+  console.log(JSON.stringify({ model, ms, decision: decide(answers) }, null, 2));
 } catch (err) {
   console.error(`triage failed: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
