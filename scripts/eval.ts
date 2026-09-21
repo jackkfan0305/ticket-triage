@@ -140,9 +140,12 @@ if (values.sweep) {
   if (missing.length > 0) console.error(`not cached, not scored: ${missing.join(", ")}`);
   if (stale.length > 0) console.error(`stale, not scored: ${stale.join(", ")}`);
 }
-const scored = score(rows, cache, DEFAULT_PARAMS, fingerprint);
+// A refetch that errored leaves the previous answer on disk, so scoring it would
+// mix old and new answers in one run. The disk keeps it; the scoring view drops it.
+const scorable: Cache = Object.fromEntries(Object.entries(cache).filter(([id]) => !errored.includes(id)));
+const scored = score(rows, scorable, DEFAULT_PARAMS, fingerprint);
 const staleSkipped = rows.filter(
-  (r) => r.expected_priority !== "" && r.expected_team !== "" && isStale(cache[r.id], r, fingerprint),
+  (r) => r.expected_priority !== "" && r.expected_team !== "" && isStale(scorable[r.id], r, fingerprint),
 ).length;
 console.log(
   `${Object.keys(cache).length}/${rows.length} cached, ${errored.length} errored this run, ${scored.length} labelled and scored, ${staleSkipped} skipped as stale`,
@@ -151,8 +154,8 @@ console.log(
 if (scored.length === 0) {
   console.log("no labelled rows yet: fill expected_priority and expected_team in tests/fixtures/evalset.csv");
 } else if (values.sweep) {
-  sweepPriority(rows, cache, fingerprint);
-  sweepRouting(rows, cache, fingerprint);
+  sweepPriority(rows, scorable, fingerprint);
+  sweepRouting(rows, scorable, fingerprint);
 } else {
   const m = computeMetrics(scored);
   const urgentCount = scored.filter((r) => r.expectedPriority === "urgent").length;
