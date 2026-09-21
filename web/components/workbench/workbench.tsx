@@ -5,26 +5,28 @@ import { DEFAULT_PARAMS, type PolicyParams } from "../../../src/triage/policy";
 import type { Ticket } from "../../../src/types";
 import { useRunStore } from "@/components/run-store";
 import { Floor, type FloorHandle } from "../floor/floor";
-import { Hud, SPEEDS, TICKET_COUNTS, type RunState } from "../floor/hud";
-import { classify } from "@/lib/classify";
+import { Hud, TICKET_COUNTS, type RunState } from "../floor/hud";
+import { classifyRun, setRunPaused } from "@/lib/classify";
 import type { FilterKey } from "@/lib/labels";
-import { pooled } from "@/lib/pool";
 import { visibleRows, type Row, type RunResult } from "@/lib/rows";
 
 /**
- * Eight in flight. Firing sixty at once turns every latency into queue wait.
+ * What the floor claims is with the model before a run has said otherwise.
  *
- * Over HTTP/1.1 the browser caps concurrent connections to one origin at six,
- * so a local run reaches six however high this goes: measured at 5.94 for 24
- * requests of a known 1s each, and 5.63 across a real 60-ticket run. Raising
- * this number buys nothing until the app is served over HTTP/2, where the cap
- * lifts and eight becomes real. The per-ticket latency stays honest either
- * way, since the route times askJev alone and socket queueing sits outside it.
+ * The pool itself lives in /api/classify/run, because a browser opens at most
+ * six connections to one origin over HTTP/1.1: a pool of eight here only ever
+ * reached 5.8 in flight. The run's first line carries the server's real number
+ * and replaces this one, so this only has to match its default.
  */
-const POOL_SIZE = 8;
+const ASSUMED_CONCURRENCY = 8;
 
-/** The rows the floor starts with. Answers already in hand carry over, so
- *  widening the sample keeps what the run has already decided. */
+/** Only has to be unique within a session; the server keys the pause on it. */
+const newRunKey = (): string =>
+  globalThis.crypto?.randomUUID?.() ?? `run-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+/** The rows the floor starts with. Answers already in hand carry over, which
+ *  is what a return from a ticket page needs; a sample change passes an empty
+ *  map instead and starts clean. */
 const seedRows = (
   tickets: readonly Ticket[],
   results: ReadonlyMap<string, RunResult>,
@@ -57,8 +59,8 @@ export function Workbench({ seed }: WorkbenchProps) {
   const [wallMs, setWallMs] = useState<number | null>(null);
   const [liveModel, setLiveModel] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
+  const [concurrency, setConcurrency] = useState(ASSUMED_CONCURRENCY);
   const [dev, setDev] = useState(false);
-  const [speedIndex, setSpeedIndex] = useState(0);
   const [zoom, setZoom] = useState(100);
 
   const floor = useRef<FloorHandle>(null);
@@ -68,7 +70,9 @@ export function Workbench({ seed }: WorkbenchProps) {
   const runId = useRef(0);
   const active = useRef(false);
   const pausedRef = useRef(false);
-  const waiting = useRef<(() => void)[]>([]);
+  /** The run the server knows about, and the handle that drops its stream. */
+  const runKey = useRef<string | null>(null);
+  const abort = useRef<AbortController | null>(null);
 
   const shown = useMemo(() => visibleRows(rows, params, filter), [rows, params, filter]);
   const samples = useMemo(
@@ -78,7 +82,6 @@ export function Workbench({ seed }: WorkbenchProps) {
   const seeded = rows.filter((row) => !row.own).length;
   const routed = rows.filter((row) => !row.own && row.live !== null).length;
   const unrouted = seeded - routed;
-  const speed = SPEEDS[speedIndex] ?? 1;
 
   const runState: RunState =
     seeded > 0 && unrouted === 0 ? "done" : running ? (paused ? "paused" : "running") : "ready";
@@ -87,25 +90,23 @@ export function Workbench({ seed }: WorkbenchProps) {
     setRows((current) => current.map((row) => (row.id === id ? { ...row, ...change } : row)));
   }, []);
 
-  /** Pause holds the pool at the next ticket rather than cancelling anything
-   *  already with the model, so every latency the run reports is a real one. */
-  const hold = useCallback((): Promise<void> => {
-    if (!pausedRef.current) return Promise.resolve();
-    return new Promise<void>((resolve) => {
-      waiting.current = [...waiting.current, resolve];
-    });
-  }, []);
-
-  const release = useCallback(() => {
-    const queued = waiting.current;
-    waiting.current = [];
-    for (const resolve of queued) resolve();
+  /** Ends whatever is in flight. The server reads the dropped stream as the
+   *  run being abandoned and stops sending tickets to the model. */
+  const stopStream = useCallback(() => {
+    abort.current?.abort();
+    abort.current = null;
+    runKey.current = null;
+    active.current = false;
   }, []);
 
   const runLive = useCallback(async () => {
     if (active.current) return;
     active.current = true;
     const id = (runId.current += 1);
+    const key = newRunKey();
+    const controller = new AbortController();
+    runKey.current = key;
+    abort.current = controller;
 
     setRunning(true);
     setPaused(false);
@@ -114,49 +115,65 @@ export function Workbench({ seed }: WorkbenchProps) {
     setWallMs(null);
 
     const targets = rows.filter((row) => !row.own);
-    setRows((current) => current.map((row) => (row.own ? row : { ...row, pending: true, live: null })));
+    // clearing the evidence is all a start does; a ticket turns pending when
+    // the pool actually sends it, so the floor shows what is with the model now
+    setRows((current) => current.map((row) => (row.own ? row : { ...row, pending: false, live: null })));
 
     const started = performance.now();
     let failures = 0;
     let firstReason: string | null = null;
+    let broke: string | null = null;
 
-    await pooled(
-      targets,
-      POOL_SIZE,
-      async (row) => {
-        if (id !== runId.current) throw new Error("run reset");
-        await hold();
-        if (id !== runId.current) throw new Error("run reset");
-        return classify({ subject: row.subject, body: row.body });
-      },
-      ({ item, value, error }) => {
-        if (id !== runId.current) return;
-        if (error) {
+    try {
+      const stream = classifyRun(
+        targets.map(({ id: ticket, subject, body }) => ({ id: ticket, subject, body })),
+        key,
+        controller.signal,
+      );
+      for await (const event of stream) {
+        if (id !== runId.current) break;
+        if (event.type === "open") {
+          setConcurrency(event.concurrency);
+        } else if (event.type === "start") {
+          patch(event.id, { pending: true });
+        } else if (event.type === "error") {
           failures += 1;
-          // the reason matters more than the count: sixty identical failures
-          // are one problem, and the message names it
-          firstReason ??= error instanceof Error ? error.message : String(error);
-        }
-        if (value) {
-          setLiveModel(value.model);
+          // the reason matters more than the count: a hundred identical
+          // failures are one problem, and the message names it
+          firstReason ??= event.error;
+          patch(event.id, { pending: false, live: null });
+        } else {
+          const result = { model: event.model, answers: event.answers, latencyMs: event.latencyMs };
+          setLiveModel(event.model);
           // the store is what a ticket's own route reads, so it gets the
           // answer at the same moment the floor does
-          record(item.id, value);
+          record(event.id, result);
+          // each response lands on its own, so rows resolve one at a time
+          patch(event.id, { pending: false, live: result });
         }
-        // each response lands on its own, so rows resolve one at a time
-        patch(item.id, { pending: false, live: value ?? null });
-      },
-    );
+      }
+    } catch (error) {
+      // an abort is a reset or a new sample, not a failure worth reporting
+      if (!controller.signal.aborted) broke = error instanceof Error ? error.message : String(error);
+    }
 
+    if (abort.current === controller) {
+      abort.current = null;
+      runKey.current = null;
+    }
     active.current = false;
-    if (id !== runId.current) return;
+    if (id !== runId.current || controller.signal.aborted) return;
 
     setWallMs(Math.round(performance.now() - started));
     setRunning(false);
-    if (failures > 0) {
+    // a ticket the stream never reached is not pending any more
+    setRows((current) => current.map((row) => (row.pending ? { ...row, pending: false } : row)));
+    if (broke !== null) {
+      setRunError(broke);
+    } else if (failures > 0) {
       setRunError(`${failures} of ${targets.length} tickets failed. ${firstReason ?? ""}`.trim());
     }
-  }, [rows, patch, hold, record]);
+  }, [rows, patch, record]);
 
   /** Resets the run and nothing else. The arrangement of the floor belongs to
    *  the reader, and Tidy is the only thing that puts it back. */
@@ -164,34 +181,35 @@ export function Workbench({ seed }: WorkbenchProps) {
     runId.current += 1;
     pausedRef.current = false;
     setPaused(false);
-    release();
+    stopStream();
     setRunning(false);
     setWallMs(null);
     setRunError(null);
     setLiveModel(null);
     setRows((current) => current.map((row) => (row.own ? row : { ...row, live: null, pending: false })));
-  }, [release]);
+  }, [stopStream]);
 
   /** Changing the sample ends the run in flight rather than letting its
-   *  answers land on a floor that no longer holds those tickets. Written
-   *  tickets are the reader's own and stay. */
+   *  answers land on a floor that no longer holds those tickets, and starts
+   *  the new sample unclassified so Start is live again. Written tickets are
+   *  the reader's own and stay. */
   const changeCount = useCallback(
     (next: number) => {
       runId.current += 1;
-      active.current = false;
       pausedRef.current = false;
       setPaused(false);
-      release();
+      stopStream();
       setRunning(false);
       setWallMs(null);
       setRunError(null);
+      setLiveModel(null);
       setCount(next);
       setRows((current) => [
         ...current.filter((row) => row.own),
-        ...seedRows(seed.slice(0, next), results),
+        ...seedRows(seed.slice(0, next), new Map()),
       ]);
     },
-    [seed, results, release],
+    [seed, stopStream],
   );
 
   const toggleRun = useCallback(() => {
@@ -200,15 +218,13 @@ export function Workbench({ seed }: WorkbenchProps) {
       void runLive();
       return;
     }
-    if (pausedRef.current) {
-      pausedRef.current = false;
-      setPaused(false);
-      release();
-    } else {
-      pausedRef.current = true;
-      setPaused(true);
-    }
-  }, [runState, running, runLive, release]);
+    const next = !pausedRef.current;
+    pausedRef.current = next;
+    setPaused(next);
+    // the pool is the server's now, so the hold has to travel
+    const key = runKey.current;
+    if (key !== null) void setRunPaused(key, next);
+  }, [runState, running, runLive]);
 
   return (
     <>
@@ -221,8 +237,6 @@ export function Workbench({ seed }: WorkbenchProps) {
         runState={runState}
         onRun={toggleRun}
         onReset={resetRun}
-        speed={speed}
-        onSpeed={() => setSpeedIndex((current) => (current + 1) % SPEEDS.length)}
         dev={dev}
         onDev={() => setDev((current) => !current)}
         count={count}
@@ -254,8 +268,7 @@ export function Workbench({ seed }: WorkbenchProps) {
           params={params}
           filter={filter}
           onFilter={setFilter}
-          poolSize={POOL_SIZE}
-          speed={speed}
+          poolSize={concurrency}
         />
       </main>
     </>

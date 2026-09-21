@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { askJev } from "../../../../src/triage/run";
 import { API_KEY_NAME, hasApiKey } from "@/lib/env";
+import { jevClient } from "@/lib/jev-client";
 
 // askJev builds a TypeSafeClient, which is server-only and holds the API key.
 export const runtime = "nodejs";
@@ -46,7 +47,7 @@ export async function POST(request: Request): Promise<Response> {
   // browser's round trip to localhost
   const started = performance.now();
   try {
-    const { model, answers } = await askJev(ticket);
+    const { model, answers } = await askJev(ticket, jevClient());
     const latencyMs = Math.round(performance.now() - started);
     return Response.json({ model, answers, latencyMs });
   } catch (error) {

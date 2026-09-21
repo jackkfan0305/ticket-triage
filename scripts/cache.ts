@@ -40,7 +40,9 @@ export async function writeCache(path: string, cache: Cache): Promise<void> {
 }
 
 // The API takes one ticket per request, so throughput is entirely client-side.
-// 8 keeps the 60-row eval well under a rate limit the API does not document.
+// Jev allows 1,200 requests a minute, which at this workload's latency is about
+// 21 in flight; 8 keeps a background refresh well under that. Pass
+// --concurrency to trade that headroom for a faster refresh.
 export const DEFAULT_CONCURRENCY = 8;
 
 type FillOptions = {

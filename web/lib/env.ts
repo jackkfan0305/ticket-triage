@@ -34,3 +34,22 @@ export function apiKey(): string | undefined {
 }
 
 export const hasApiKey = (): boolean => Boolean(apiKey());
+
+/**
+ * How many tickets a run sends to the model at once.
+ *
+ * 8 holds 100 tickets at 2.58s wall and 199ms a ticket, which is Jev's real
+ * judgment time. Higher works too, now that the client has a dispatcher that
+ * survives concurrency (see jev-client.ts), but Jev publishes 1,200 requests a
+ * minute and 8 already sustains roughly twice that in a burst; a 1000-ticket
+ * run at a larger number is where a 429 and the SDK's backoff would show up.
+ *
+ * Read after apiKey(), which loads the repo-root .env into process.env; before
+ * that this sees only what Next injected.
+ */
+export const DEFAULT_CONCURRENCY = 8;
+
+export function concurrency(raw = process.env.TRIAGE_CONCURRENCY): number {
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_CONCURRENCY;
+}
