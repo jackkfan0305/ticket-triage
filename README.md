@@ -1,12 +1,15 @@
-# ticket-triage
+# Ticket Triage
 
-Turns a support ticket into a priority and an owning team. It asks TypeSafe's Jev
-model seven narrow questions about the ticket text, then applies a policy written in
-plain TypeScript to reach a decision.
+[Try Ticket Triage live](https://ticket-triage-efr1sxms7-jackfan0305-7272s-projects.vercel.app).
 
-The split matters: Jev judges, code decides. Every weight and threshold lives in one
-pure function with no I/O, so the same policy runs in the CLI, in the eval harness,
-and in the browser, and tuning it costs nothing.
+A support-ticket classifier with a CLI, an offline policy evaluation workflow, and
+an interactive Next.js workbench. It asks TypeSafe's Jev model seven narrow questions
+about the ticket text, then applies a TypeScript policy to assign a priority and an
+owning team.
+
+Jev supplies the judgments; TypeScript applies the routing and priority rules.
+A shared pure function applies the configurable weights and thresholds in the CLI,
+evaluation scripts, and browser. Re-scoring existing answers needs no API calls.
 
 ## Setup
 
@@ -14,7 +17,13 @@ Needs [Bun](https://bun.sh) 1.3+.
 
 ```sh
 bun install
-echo 'TYPESAFE_API_KEY=sk-...' > .env   # gitignored; the web app reads this same file
+```
+
+Add your TypeSafe API key to `.env` in the repository root. Both the CLI and web
+app read this file, and Git ignores it.
+
+```dotenv
+TYPESAFE_API_KEY=your-api-key
 ```
 
 ## Triage one ticket
@@ -46,15 +55,29 @@ later without asking the model again.
 cd web && bun install && bun dev
 ```
 
-A Next.js floor of ticket cards from the eval set. Pick how many are on it (50 to
-1000), start a run, and watch each card fly to its pile as Jev answers. Opening a
-card shows the gates, the score levels, and the urgency arithmetic that produced its
-priority, with the thresholds live: drag one and every card re-decides in the browser.
-That works because `web/lib/rows.ts` imports the same `decide()` the CLI calls.
+Open `http://localhost:3000`. The workbench uses Next.js, React, Tailwind CSS,
+Base UI components, and GSAP animations.
 
-The key is read from the repo-root `.env`, one level above `web/`, so it is set once
-for both. Runs go through a server route; the key never reaches the browser.
-`TRIAGE_CONCURRENCY` overrides how many tickets are in flight at once (default 8).
+- Choose 50, 100, 500, or 1000 tickets from the bundled dataset. Start a live run
+  and watch tickets move into team piles as results arrive.
+- Pan and zoom the canvas, drag piles, scroll their ticket lists, and use Frame
+  everything or Tidy to restore the view. Keyboard controls support panning and zoom.
+- Open a ticket at `/tickets/[id]` to inspect its text, model evidence, team
+  confidence, and priority calculation. The active run continues across navigation.
+- Use the compose dialog to classify your own ticket.
+- Open developer mode to adjust policy thresholds, weights, and routing confidence.
+  Existing answers are re-scored in the browser without another API call. The panel
+  also shows the resolved model, per-ticket latency, p50, p95, mean, and run time.
+- Pause and resume a run, reset its results, or switch between light and dark themes.
+  Pausing stops new requests; tickets already with the model can still finish.
+
+Batch runs use a server-side worker pool and stream results over one NDJSON
+connection. This avoids the browser connection limit that constrained the earlier
+client-side pool. `TRIAGE_CONCURRENCY` sets the worker count, with a default of 8.
+The API key stays on the server.
+
+Run evidence lives in memory and survives navigation within the app, but a hard
+reload clears it. The workbench does not load the CLI evaluation cache.
 
 ## How a decision is made
 
@@ -78,28 +101,38 @@ already on disk.
 ## Evaluation
 
 ```sh
-bun run eval --refresh    # ask Jev for each ticket, cache the answers, then score
-bun run eval              # score from the cache
-bun run eval --sweep      # walk thresholds over the cache, no network
+bun run eval                    # fetch missing or stale answers, then score
+bun run eval --refresh           # re-fetch every ticket, then score
+bun run eval --sweep             # sweep policy parameters over the cache, no network
+bun run eval --concurrency 8     # set the evaluation worker count
 ```
 
 `tests/fixtures/evalset.csv` holds 1000 English tickets drawn uniformly from
 [Tobi-Bueck/customer-support-tickets](https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets),
 so the mix is the one the dataset actually has. That leaves 27 Human Resources
-tickets in the set, which sit outside the roster and are the only way to check that
-the no-match branch ever fires. Rebuild with
+tickets in the set, which provide examples outside the six-team roster. Rebuild with
 `uv run --with datasets scripts/build_evalset.py`. It refuses to run if the CSV
 already holds hand labels, since those are the one thing it cannot regenerate; move
 the file aside to force a rebuild.
 
-The dataset's own `priority` and `queue` are sampling strata, never ground truth.
+The dataset's own `priority` and `queue` remain as source metadata, never ground truth.
 Ground truth is the `expected_priority` and `expected_team` columns, filled in by hand
 against this roster.
 
-The answer cache (`tests/fixtures/answers.json`) is not in the repo, so the first run
-needs `--refresh`. Entries are keyed by ticket id and fingerprinted by model, question
-set, and ticket text; change any of those and the entry goes stale rather than quietly
-scoring against answers to a different question.
+The generated answer cache at `tests/fixtures/answers.json` is not bundled in the
+repo. A normal run creates it and reuses current entries on later runs. Each entry
+records the resolved model and fingerprints the question set and ticket text.
+Changes to questions, the embedded team roster, or ticket text make an entry stale.
+Use `--refresh` to force new answers, including when comparing model versions.
+
+Each completed answer is saved through an atomic file replacement. Failed requests
+do not stop other tickets, and an old answer from a failed refresh is excluded from
+that run's scores. A cache write failure stops further fetching.
+
+Fill both `expected_priority` and `expected_team` to score a row. Use `none` for a
+team outside the roster. The sweep ranks priority settings by urgent recall, exact
+match, and within-one accuracy, and evaluates routing confidence floors separately.
+It prints candidate settings without changing `DEFAULT_PARAMS`.
 
 Reported metrics: priority exact and within-one, routing accuracy over routed tickets,
 needs-triage rate, no-match recall, and misroute counts by `expected->got`. Urgent
@@ -108,18 +141,15 @@ missed urgent costs a customer.
 
 ## Status
 
-The CLI, the policy, the eval harness, and the workbench are built and tested. Two
-things are open, and they are the same thing twice:
+The CLI, shared policy, evaluation workflow, and interactive workbench are
+implemented, with unit and browser tests in the repo.
 
-- **The eval set is unlabelled.** `expected_priority` and `expected_team` are empty,
-  so `bun run eval` has nothing to score against yet.
-- **Every number in `DEFAULT_PARAMS` is still a starting guess.** They are placeholders
-  waiting on the sweep, which needs the labels. Treat any of them found unchanged after
-  tuning as a bug, not as a value someone chose.
+The 1000-ticket dataset has no hand labels yet, so it supports live demonstrations
+but does not establish classification accuracy. `DEFAULT_PARAMS` still contains
+initial values that need evaluation against labelled tickets.
 
-Deferred by design, with the research written down in Section 6 of the spec: the
-Zendesk adapter. `Priority` already uses Zendesk's four values, so the write-back is a
-field copy rather than a mapping table.
+The Zendesk adapter remains deferred. The team roster has placeholder group IDs,
+and this app does not write decisions back to a helpdesk.
 
 ## Layout
 
@@ -131,14 +161,34 @@ field copy rather than a mapping table.
 | `src/config/teams.ts` | the team roster, including each team's `not` line |
 | `scripts/eval.ts` | cache, score, sweep |
 | `scripts/build_evalset.py` | the only Python file; runs once, writes the CSV |
-| `web/` | the workbench; imports `policy.ts` across the package boundary |
-| `docs/superpowers/specs/` | the design spec and the frontend spec, with the arguments |
+| `web/components/floor/` | draggable canvas, team piles, controls, and ticket animations |
+| `web/components/workbench/` | ticket evidence, compose dialog, and policy controls |
+| `web/components/run-store.tsx` | shared live-run state across routes |
+| `web/app/api/classify/` | single-ticket, streaming batch, and pause endpoints |
+| `web/e2e/` | Playwright browser, accessibility, and responsive-layout checks |
+
+## Checks
+
+Run the core checks from the repository root:
 
 ```sh
-bun test ./tests/   # 42 tests, no network
+bun run test
 bun run typecheck
-cd web && bun test tests/ && bun run test:e2e
 ```
+
+Run web checks from `web/` after installing its dependencies:
+
+```sh
+cd web
+bun run test
+bun run typecheck
+bunx playwright install
+bun run test:e2e
+```
+
+Playwright builds and starts the production app on port 3100, then runs Chromium,
+Firefox, and WebKit tests. Coverage includes ticket details, the compose dialog,
+run navigation, API validation, accessibility, and responsive layouts in both themes.
 
 Plain `bun test` at the root sweeps `web/tests` too, so it needs `web`'s dependencies
 installed.
