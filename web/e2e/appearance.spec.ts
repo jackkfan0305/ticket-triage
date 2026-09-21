@@ -1,5 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { openClassifiedTicket } from "./open-classified-ticket";
+import { openCompose } from "./open-compose";
 
 const WIDTHS = [320, 375, 430, 768, 1024, 1440, 1920] as const;
 const THEMES = ["light", "dark"] as const;
@@ -10,26 +12,37 @@ const THEMES = ["light", "dark"] as const;
 /** A ticket that exists in the eval set, for the route that renders one. */
 const TICKET = "hf-8193";
 
-/** The route classifies on a cold load; the shape of the answer is not what
- *  these tests are about, so it is stubbed and held still. */
-const stubClassify = (page: Page) =>
-  page.route("**/api/classify", (route) =>
-    route.fulfill({
-      json: {
-        model: "stub-1",
-        answers: {
-          has_request: { type: "noul", noul: 0.9 },
-          is_security_or_data_loss: { type: "noul", noul: 0.1 },
-          is_outage: { type: "noul", noul: 0.1 },
-          impact_severity: { type: "score", score: 3, confidence: 0.9, probabilities: { "0": 1 } },
-          time_pressure: { type: "score", score: 2, confidence: 0.82, probabilities: { "0": 1 } },
-          customer_frustration: { type: "score", score: 1, confidence: 0.77, probabilities: { "0": 1 } },
-          team: { type: "choice", choice: "billing", confidence: 0.9, probabilities: { billing: 0.9 } },
-        },
-        latencyMs: 120,
-      },
-    }),
+/** Keep the run results stable for classified detail screenshots. */
+const ANSWERS = {
+  has_request: { type: "noul", noul: 0.9 },
+  is_security_or_data_loss: { type: "noul", noul: 0.1 },
+  is_outage: { type: "noul", noul: 0.1 },
+  impact_severity: { type: "score", score: 3, confidence: 0.9, probabilities: { "2": 0.1, "3": 0.8, "4": 0.1 } },
+  time_pressure: { type: "score", score: 2, confidence: 0.82, probabilities: { "1": 0.1, "2": 0.8, "3": 0.1 } },
+  customer_frustration: { type: "score", score: 1, confidence: 0.77, probabilities: { "0": 0.1, "1": 0.8, "2": 0.1 } },
+  team: { type: "choice", choice: "billing", confidence: 0.9, probabilities: { billing: 0.9, sales: 0.1 } },
+};
+
+/** The floor's run is a single NDJSON stream; a ticket's own Classify button
+ *  still posts one at a time. */
+const stubClassify = async (page: Page) => {
+  await page.route("**/api/classify/run", async (route) => {
+    const { tickets } = route.request().postDataJSON() as { tickets: { id: string }[] };
+    await route.fulfill({
+      contentType: "application/x-ndjson",
+      body: `${[
+        JSON.stringify({ type: "open", concurrency: 8 }),
+        ...tickets.flatMap((ticket) => [
+          JSON.stringify({ type: "start", id: ticket.id }),
+          JSON.stringify({ type: "done", id: ticket.id, model: "stub-1", answers: ANSWERS, latencyMs: 120 }),
+        ]),
+      ].join("\n")}\n`,
+    });
+  });
+  await page.route("**/api/classify", (route) =>
+    route.fulfill({ json: { model: "stub-1", answers: ANSWERS, latencyMs: 120 } }),
   );
+};
 
 const showDev = (page: Page) => page.getByRole("button", { name: /show developer mode/i }).click();
 
@@ -77,14 +90,14 @@ test.describe("responsive", () => {
     test(`a ticket's own page fits at ${width}`, async ({ page }) => {
       await stubClassify(page);
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(`/tickets/${TICKET}`);
+      await openClassifiedTicket(page);
       await expect(page.getByText(/scored judgments/i)).toBeVisible();
       expect(await overflowOf(page)).toBeLessThanOrEqual(0);
     });
 
-    test(`the compose view fits at ${width}`, async ({ page }) => {
+    test(`the compose window fits at ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto("/compose");
+      await openCompose(page);
       await expect(page.getByLabel(/^body$/i)).toBeVisible();
       expect(await overflowOf(page)).toBeLessThanOrEqual(0);
     });
@@ -93,7 +106,7 @@ test.describe("responsive", () => {
   test("the document views keep a side gutter at every width", async ({ page }) => {
     for (const width of WIDTHS) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto("/compose");
+      await page.goto(`/tickets/${TICKET}`);
       const gutter = await page
         .locator("main")
         .evaluate((node) => Number.parseFloat(getComputedStyle(node).paddingInlineStart));
@@ -127,6 +140,19 @@ for (const theme of THEMES) {
     // and the comparison is flaky. Reduced motion skips it and settles.
     test.use({ reducedMotion: "reduce", colorScheme: theme });
 
+    test("a classified team uses the shared priority markers", async ({ page }) => {
+      await stubClassify(page);
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto("/");
+      await page.getByRole("button", { name: /^start$/i }).click();
+      await expect(page.getByRole("button", { name: /^done$/i })).toBeVisible();
+      const card = page.locator('[data-card="billing"]');
+      await expect(card.getByRole("group", { name: "Tickets by priority" })).toContainText("50 high priority");
+      await expect(card.locator("li")).toHaveCount(50);
+      await page.mouse.move(0, 0);
+      await expect(card).toHaveScreenshot(`team-classified-${theme}.png`, { animations: "disabled" });
+    });
+
     for (const width of [320, 768, 1024, 1440] as const) {
       test(`the floor at ${width}`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
@@ -142,10 +168,24 @@ for (const theme of THEMES) {
       test(`a ticket's own page at ${width}`, async ({ page }) => {
         await stubClassify(page);
         await page.setViewportSize({ width, height: 900 });
-        await page.goto(`/tickets/${TICKET}`);
+        await openClassifiedTicket(page);
         await expect(page.getByText(/scored judgments/i)).toBeVisible();
         await expect(page).toHaveScreenshot(`detail-${width}-${theme}.png`, {
-          fullPage: false,
+          fullPage: true,
+          animations: "disabled",
+        });
+      });
+    }
+
+    for (const width of [320, 1440] as const) {
+      test(`an unclassified ticket at ${width}`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/tickets/${TICKET}`);
+        await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
+        await expect(page.getByText(/scored judgments/i)).toHaveCount(0);
+        expect(await overflowOf(page)).toBeLessThanOrEqual(0);
+        await expect(page).toHaveScreenshot(`detail-unclassified-${width}-${theme}.png`, {
+          fullPage: true,
           animations: "disabled",
         });
       });
@@ -153,8 +193,13 @@ for (const theme of THEMES) {
   });
 }
 
+// Base UI parks role="button" focus guards either side of an open popup. They
+// are 1px, inert and nameless by design, and webkit still hands them to axe.
 const audit = (page: Page) =>
-  new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
+  new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .exclude("[data-base-ui-focus-guard]")
+    .analyze();
 
 for (const theme of THEMES) {
   test.describe(`accessibility, ${theme}`, () => {
@@ -193,7 +238,7 @@ test.describe("accessibility", () => {
 
   test("a ticket's own page has no axe violation", async ({ page }) => {
     await stubClassify(page);
-    await page.goto(`/tickets/${TICKET}`);
+    await openClassifiedTicket(page);
     await expect(page.getByText(/scored judgments/i)).toBeVisible();
     const { violations } = await audit(page);
     expect(violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
@@ -201,7 +246,7 @@ test.describe("accessibility", () => {
 
   test("a ticket's own page descends from its own h1", async ({ page }) => {
     await stubClassify(page);
-    await page.goto(`/tickets/${TICKET}`);
+    await openClassifiedTicket(page);
     await expect(page.getByText(/scored judgments/i)).toBeVisible();
     const levels = await page.evaluate(() =>
       [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map((node) => Number(node.tagName[1])),
@@ -213,7 +258,7 @@ test.describe("accessibility", () => {
   });
 
   test("the compose form passes too", async ({ page }) => {
-    await page.goto("/compose");
+    await openCompose(page);
     await expect(page.getByLabel(/^body$/i)).toBeVisible();
     const { violations } = await audit(page);
     expect(violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

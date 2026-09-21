@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openCompose } from "./open-compose";
 
 /**
  * Every classification now comes from a live run: there is no cached answer
@@ -17,18 +18,48 @@ const answersFor = (team: string, impact: number, outage = 0.1) => ({
   team: { type: "choice", choice: team, confidence: 0.9, probabilities: { [team]: 0.9 } },
 });
 
+/**
+ * The floor's run is one request now: the pool lives in /api/classify/run and
+ * the response is NDJSON, one line per event. A stub therefore answers with
+ * the whole run at once, which is why nothing here asserts on a half-finished
+ * pool; only the server can hold one open.
+ */
+const runStream = (
+  tickets: readonly { id: string }[],
+  answersAt: (index: number) => object,
+  concurrency = 8,
+) =>
+  [
+    JSON.stringify({ type: "open", concurrency }),
+    ...tickets.flatMap((ticket, index) => [
+      JSON.stringify({ type: "start", id: ticket.id }),
+      JSON.stringify({
+        type: "done",
+        id: ticket.id,
+        model: "stub-1",
+        answers: answersAt(index),
+        latencyMs: 100 + (index % 50),
+      }),
+    ]),
+    "",
+  ].join("\n");
+
+const stubRun = async (page: Page, answersAt: (index: number) => object, concurrency = 8) => {
+  await page.route("**/api/classify/run", async (route) => {
+    const { tickets } = route.request().postDataJSON() as { tickets: { id: string }[] };
+    await route.fulfill({
+      contentType: "application/x-ndjson",
+      body: runStream(tickets, answersAt, concurrency),
+    });
+  });
+};
+
 /** Round-robins the roster so every card receives work, and gates one ticket
  *  on the outage branch so the evidence view has a forced priority to show. */
 const stubClassify = async (page: Page) => {
-  let n = 0;
-  await page.route("**/api/classify", async (route) => {
-    const team = TEAMS[n % TEAMS.length] as string;
-    const outage = n === 0 ? 0.95 : 0.1;
-    n += 1;
-    await route.fulfill({
-      json: { model: "stub-1", answers: answersFor(team, n % 5, outage), latencyMs: 100 + (n % 50) },
-    });
-  });
+  await stubRun(page, (index) =>
+    answersFor(TEAMS[index % TEAMS.length] as string, (index + 1) % 5, index === 0 ? 0.95 : 0.1),
+  );
 };
 
 /**
@@ -38,9 +69,13 @@ const stubClassify = async (page: Page) => {
  */
 const URGENCY = 0.6833;
 
+/** Both routes: the floor's run streams, and a single ticket's own Classify
+ *  button still posts to /api/classify. */
 const stubUniform = async (page: Page, outage = 0.1) => {
+  const answers = answersFor("billing", 3, outage);
+  await stubRun(page, () => answers);
   await page.route("**/api/classify", (route) =>
-    route.fulfill({ json: { model: "stub-1", answers: answersFor("billing", 3, outage), latencyMs: 120 } }),
+    route.fulfill({ json: { model: "stub-1", answers, latencyMs: 120 } }),
   );
 };
 
@@ -74,6 +109,16 @@ const dragCard = async (page: Page, id: string) => {
     await page.waitForTimeout(20);
   }
   await page.mouse.up();
+};
+
+/**
+ * A card under the pointer is raised, so its box is read with the pointer off
+ * it: the lift is not a position, and only positions are under test here.
+ */
+const boxAtRest = async (page: Page, id: string) => {
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(400);
+  return (await page.locator(`[data-card="${id}"]`).boundingBox()) as { x: number; y: number };
 };
 
 /** Waits for a thrown card to coast to a stop rather than guessing at a delay:
@@ -120,6 +165,35 @@ test.describe("the triage floor", () => {
     await expect(page.getByRole("button", { name: /^start$/i })).toBeVisible();
   });
 
+  test("moving tickets use the same priority marker as their destination rows", async ({ page }) => {
+    await stubUniform(page);
+    await settled(page);
+    const flightAppearance = page.evaluate(() => new Promise<{ path: string | null; rounded: boolean; border: string; text: string | null }>((resolve) => {
+      const observer = new MutationObserver(() => {
+        const ticket = document.querySelector<HTMLElement>("[data-ticket-flight] > div");
+        if (!ticket) return;
+        const style = getComputedStyle(ticket);
+        observer.disconnect();
+        resolve({
+          path: ticket.querySelector("path")?.getAttribute("d") ?? null,
+          rounded: Number.parseFloat(style.borderRadius) >= ticket.offsetHeight / 2,
+          border: style.borderLeftWidth,
+          text: ticket.querySelector("span")?.textContent ?? null,
+        });
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }));
+    await page.getByRole("button", { name: /^start$/i }).click();
+    const flight = await flightAppearance;
+    expect(flight.path).toBeTruthy();
+    expect(flight.rounded).toBe(true);
+    expect(flight.border).toBe("1px");
+    expect(flight.text).toBeTruthy();
+    const rowMarker = page.locator('[data-card="billing"] li svg path').first();
+    await expect(rowMarker).toHaveAttribute("d", flight.path!);
+    await expect(page.locator("[data-ticket-flight]")).toHaveCount(0);
+  });
+
   test("boots with every ticket in the inbox and nothing routed", async ({ page }) => {
     await settled(page);
     await expect(page.getByRole("button", { name: /^start$/i })).toBeEnabled();
@@ -143,20 +217,33 @@ test.describe("the triage floor", () => {
   });
 
   test("run state is readable from the button alone", async ({ page }) => {
-    await stubUniform(page);
+    // The pool is the server's now, so a stub answers the whole run in one
+    // body: the only way to catch the button mid-run is to hold the response.
+    const answers = answersFor("billing", 3);
+    let release = () => {};
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await page.route("**/api/classify/run", async (route) => {
+      const { tickets } = route.request().postDataJSON() as { tickets: { id: string }[] };
+      await held;
+      await route.fulfill({ contentType: "application/x-ndjson", body: runStream(tickets, () => answers) });
+    });
+
     await settled(page);
-    // the largest sample, so a stubbed run is long enough to be paused midway
+    // the largest sample, so the run route also sees its biggest body
     await chooseSample(page, 1000);
-    const button = page.getByRole("button", { name: /^start$/i });
-    await button.click();
+    await page.getByRole("button", { name: /^start$/i }).click();
 
     await expect(page.getByRole("button", { name: /^pause$/i })).toBeVisible();
     await page.getByRole("button", { name: /^pause$/i }).click();
     await expect(page.getByRole("button", { name: /^resume$/i })).toBeVisible();
-
-    await expect(countOn(page, "inbox")).not.toHaveText("1000");
+    await expect(countOn(page, "inbox")).toHaveText("1000");
 
     await page.getByRole("button", { name: /^resume$/i }).click();
+    await expect(page.getByRole("button", { name: /^pause$/i })).toBeVisible();
+
+    release();
     await expect(page.getByRole("button", { name: /^done$/i })).toBeVisible({ timeout: 60_000 });
     await expect(countOn(page, "inbox")).toHaveText("0");
   });
@@ -168,7 +255,7 @@ test.describe("the triage floor", () => {
     const card = page.locator('[data-card="billing"]');
     await dragCard(page, "billing");
     await settleCard(page, "billing");
-    const moved = (await card.boundingBox()) as { x: number; y: number };
+    const moved = await boxAtRest(page, "billing");
 
     await page.getByRole("button", { name: /^start$/i }).click();
     await expect(countOn(page, "billing")).not.toHaveText("0", { timeout: 30_000 });
@@ -253,6 +340,7 @@ test.describe("the triage floor", () => {
     const before = new Map((await read()).map((card) => [card.id, card]));
     await dragCard(page, "billing");
     await settleCard(page, "billing");
+    await boxAtRest(page, "billing");
 
     expect(await page.evaluate(() => String(window.getSelection() ?? ""))).toBe("");
 
@@ -261,6 +349,19 @@ test.describe("the triage floor", () => {
       return Math.abs(card.x - was.x) > 1 || Math.abs(card.y - was.y) > 1;
     });
     expect(moved.map((card) => card.id)).toEqual(["billing"]);
+  });
+
+  test("a card lifts under the pointer and settles when it leaves", async ({ page }) => {
+    await settled(page);
+    const card = page.locator('[data-card="billing"]');
+    const transform = () => card.evaluate((node) => (node as HTMLElement).style.transform);
+    const box = (await card.boundingBox()) as { x: number; y: number; width: number; height: number };
+
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await expect.poll(transform).toContain("scale(");
+
+    await page.mouse.move(2, 2);
+    await expect.poll(transform).not.toContain("scale(");
   });
 
   test("the camera pans, zooms, frames and tidies", async ({ page }) => {
@@ -298,6 +399,22 @@ test.describe("the triage floor", () => {
 
     await page.keyboard.press("Escape");
     await expect(sheet).toBeHidden();
+  });
+
+  test("the inbox pile reports how many tickets the server sends at once", async ({ page }) => {
+    // the number belongs to the run route now, and reaches the floor on the
+    // stream's first line rather than being a constant in the browser
+    await stubRun(page, () => answersFor("billing", 3), 24);
+
+    await settled(page);
+    await page.locator('[data-card="inbox"] h2 button').click();
+    const sheet = page.getByRole("complementary");
+    await expect(sheet.getByText("not asked yet")).toHaveCount(50);
+    await expect(page.getByText(/8 go to the model at a time/)).toBeVisible();
+
+    await page.getByRole("button", { name: /^start$/i }).click();
+    await expect(page.getByRole("button", { name: /^done$/i })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/24 go to the model at a time/)).toBeVisible();
   });
 
   test("a press anywhere on a card opens its pile", async ({ page }) => {
@@ -346,7 +463,6 @@ test.describe("the triage floor", () => {
 
     const url = page.url();
     await expect(page.getByRole("heading", { level: 1, name: "Ticket Triage" })).toBeVisible();
-    await expect(page.getByText(/from this session's run · \d+ ms measured/i)).toBeVisible();
     await expect(page.locator("[data-stat='priority'] dd")).toHaveText(
       new RegExp(`high.*${URGENCY.toFixed(3)}`),
     );
@@ -355,13 +471,12 @@ test.describe("the triage floor", () => {
     await expect(page.getByRole("application")).toBeVisible();
     await expect(countOn(page, "billing")).not.toHaveText("0");
 
-    // the address is real: a cold load of the same URL stands on its own
     await page.goto(url);
-    await expect(page.getByText(/classified on open · \d+ ms/i)).toBeVisible();
-    await expect(page.locator("[data-stat='priority'] dd")).toHaveText(/high/);
+    await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
+    await expect(page.locator("[data-stat='priority']")).toHaveCount(0);
   });
 
-  test("a cold load classifies the ticket exactly once", async ({ page }) => {
+  test("opening and reloading a ticket does not classify it", async ({ page }) => {
     let calls = 0;
     await page.route("**/api/classify", (route) => {
       calls += 1;
@@ -371,9 +486,16 @@ test.describe("the triage floor", () => {
     });
 
     await page.goto("/tickets/hf-8193");
-    await expect(page.getByText(/scored judgments/i)).toBeVisible();
-    await page.waitForTimeout(500);
-    expect(calls).toBe(1);
+    await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Assistance Required from Customer Support" })).toBeVisible();
+    await expect(page.getByText(/supply comprehensive documentation/)).toBeVisible();
+    await expect(page.getByText(/scored judgments/i)).toHaveCount(0);
+    expect(calls).toBe(0);
+
+    await page.reload();
+    await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
+    await expect(page.getByText("hf-8193", { exact: true })).toBeVisible();
+    expect(calls).toBe(0);
   });
 
   test("an unknown ticket id renders the 404, not a crash", async ({ page }) => {
@@ -382,22 +504,20 @@ test.describe("the triage floor", () => {
     await expect(page.getByText(/could not be found|404/i).first()).toBeVisible();
   });
 
-  test("a failed classification says so and offers a retry", async ({ page }) => {
+  test("ticket content is available when classification would fail", async ({ page }) => {
     let calls = 0;
     await page.route("**/api/classify", (route) => {
       calls += 1;
-      return calls === 1
-        ? route.fulfill({ status: 502, json: { error: "Classification failed upstream." } })
-        : route.fulfill({ json: { model: "stub-1", answers: answersFor("billing", 3), latencyMs: 90 } });
+      return route.fulfill({ status: 502, json: { error: "Classification failed upstream." } });
     });
 
     await page.goto("/tickets/hf-8193");
-    // Next's own route announcer is also role=alert, so name the one that matters
-    await expect(page.getByRole("alert").filter({ hasText: /classification/i })).toBeVisible();
-    await expect(page.getByText(/scored judgments/i)).toHaveCount(0);
-
-    await page.getByRole("button", { name: /try again/i }).click();
-    await expect(page.getByText(/scored judgments/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Assistance Required from Customer Support" })).toBeVisible();
+    await expect(page.getByText(/supply comprehensive documentation/)).toBeVisible();
+    await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: /classification/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /try again/i })).toHaveCount(0);
+    expect(calls).toBe(0);
   });
 
   test("dragging a threshold re-decides the floor in the browser", async ({ page }) => {
@@ -435,26 +555,27 @@ test.describe("the triage floor", () => {
     await expect(page.locator("[data-stat='priority'] dd")).toHaveText(/urgent/);
   });
 
-  test("writing a ticket is its own address, and back returns to the floor", async ({ page }) => {
-    await page.getByRole("link", { name: /write your own ticket/i }).click();
+  test("writing a ticket opens over the floor, and closing gives it back", async ({ page }) => {
+    await page.getByRole("button", { name: /write your own ticket/i }).click();
 
-    await expect(page).toHaveURL(/\/compose$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Write your own ticket");
-    await expect(page.locator("[data-card]")).toHaveCount(0);
-
-    await page.getByRole("link", { name: /triage floor/i }).click();
-    await expect(page).toHaveURL(/\/$/);
+    const window = page.getByRole("dialog");
+    await expect(window).toBeVisible();
+    await expect(window.getByRole("heading", { name: "Write your own ticket" })).toBeVisible();
+    // the floor is still there, behind it
     await expect(page.locator("[data-card]")).toHaveCount(8);
+
+    await page.keyboard.press("Escape");
+    await expect(window).toBeHidden();
+    await expect(page).toHaveURL(/\/$/);
   });
 
-  test("an ad-hoc ticket keeps its evidence on the compose page", async ({ page }) => {
+  test("an ad-hoc ticket keeps its evidence in the window", async ({ page }) => {
     await stubUniform(page);
-    await page.goto("/compose");
+    await openCompose(page);
     await page.getByRole("button", { name: /sample 1/i }).click();
     await page.getByRole("button", { name: /^classify$/i }).click();
 
     await expect(page.getByText(/scored judgments/i)).toBeVisible();
-    await expect(page).toHaveURL(/\/compose$/);
 
     // and the form comes back for the next one
     await page.getByRole("button", { name: /write another/i }).click();
@@ -462,7 +583,7 @@ test.describe("the triage floor", () => {
   });
 
   test("compose enforces the same caps the route does", async ({ page }) => {
-    await page.goto("/compose");
+    await openCompose(page);
 
     const classify = page.getByRole("button", { name: /^classify$/i });
     await expect(classify).toBeDisabled(); // empty body
