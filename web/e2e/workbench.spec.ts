@@ -63,6 +63,23 @@ const stubClassify = async (page: Page) => {
 };
 
 /**
+ * A run the stub holds open until the test releases it. The pool is the
+ * server's, so this is the only way to act on a floor mid-run.
+ */
+const heldRun = async (page: Page, answersAt: (index: number) => object) => {
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/classify/run", async (route) => {
+    const { tickets } = route.request().postDataJSON() as { tickets: { id: string }[] };
+    await held;
+    await route.fulfill({ contentType: "application/x-ndjson", body: runStream(tickets, answersAt) });
+  });
+  return () => release();
+};
+
+/**
  * Every ticket gets the same answer, so the verdict under test is known before
  * the run starts: impact 3 of 4, time 2 of 3, frustration 1 of 3 weighs out at
  * urgency 0.683, which is the high band under the default thresholds.
@@ -474,6 +491,62 @@ test.describe("the triage floor", () => {
     await page.goto(url);
     await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
     await expect(page.locator("[data-stat='priority']")).toHaveCount(0);
+  });
+
+  test("a reset drops the evidence a ticket route is reading", async ({ page }) => {
+    await stubUniform(page);
+    await openFirstRouted(page);
+
+    await page.goBack();
+    await expect(page.getByRole("application")).toBeVisible();
+    await page.getByRole("button", { name: /reset the run/i }).click();
+    await expect(countOn(page, "inbox")).toHaveText("50");
+
+    // forward is a soft navigation: same session, same answers, if any survived
+    await page.goForward();
+    await expect(page.getByText("Not classified", { exact: true })).toBeVisible();
+    await expect(page.getByText(/scored judgments/i)).toHaveCount(0);
+  });
+
+  test("a run in flight survives a trip to a ticket and back", async ({ page }) => {
+    const answers = answersFor("billing", 3);
+    const release = await heldRun(page, () => answers);
+
+    await settled(page);
+    await page.getByRole("button", { name: /^start$/i }).click();
+    await expect(page.getByRole("button", { name: /^pause$/i })).toBeVisible();
+
+    await page.locator('[data-card="inbox"] h2 button').click();
+    await page.getByRole("complementary").locator("li a").first().click();
+    await expect(page).toHaveURL(/\/tickets\/hf-\d+$/);
+
+    await page.goBack();
+    await expect(page.getByRole("application")).toBeVisible();
+    // the run never stopped, so the floor offers the pause, not a second start
+    await expect(page.getByRole("button", { name: /^pause$/i })).toBeVisible();
+
+    release();
+    await expect(countOn(page, "inbox")).toHaveText("0", { timeout: 60_000 });
+    await expect(page.getByRole("button", { name: /^done$/i })).toBeVisible();
+  });
+
+  test("a pause the server refuses puts the button back", async ({ page }) => {
+    const answers = answersFor("billing", 3);
+    const release = await heldRun(page, () => answers);
+    await page.route("**/api/classify/pause", (route) =>
+      route.fulfill({ status: 503, json: { error: "The run is not on this instance." } }),
+    );
+
+    await settled(page);
+    await page.getByRole("button", { name: /^start$/i }).click();
+    await page.getByRole("button", { name: /^pause$/i }).click();
+
+    // the model is still being sent tickets, so the button may not claim a hold
+    await expect(page.getByRole("status").filter({ hasText: /did not pause/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^pause$/i })).toBeVisible();
+
+    release();
+    await expect(page.getByRole("button", { name: /^done$/i })).toBeVisible({ timeout: 60_000 });
   });
 
   test("opening and reloading a ticket does not classify it", async ({ page }) => {

@@ -77,13 +77,23 @@ export async function* classifyRun(
   for await (const line of ndjson(response.body)) yield RunEventSchema.parse(line);
 }
 
-/** Holds or releases a run already in flight. Failure to reach the server is
- *  reported by the run itself, so this one stays quiet. */
+/**
+ * Holds or releases a run already in flight.
+ *
+ * This is a separate request from the run's own stream, so the run can tell
+ * nobody when it fails. It throws instead: a pause the server never received
+ * leaves the pool sending tickets to the model, and a button that says paused
+ * while the spend continues is the worst of both.
+ */
 export async function setRunPaused(runId: string, paused: boolean): Promise<void> {
-  await fetch("/api/classify/pause", {
+  const response = await fetch("/api/classify/pause", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ runId, paused }),
     keepalive: true,
-  }).catch(() => {});
+  });
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(payload.error ?? `Request failed (${response.status}).`);
+  }
 }

@@ -4,6 +4,10 @@ import { SCORE_KEYS, TOP, type FilterKey } from "./labels";
 
 export type RunResult = { answers: Answers; latencyMs: number; model: string };
 
+/** How much of the eval set is on the floor. The run classifies exactly what
+ *  is on the floor, so this picks the sample and the workload at once. */
+export const TICKET_COUNTS = [50, 100, 500, 1000] as const;
+
 export type Row = {
   id: string;
   subject: string;

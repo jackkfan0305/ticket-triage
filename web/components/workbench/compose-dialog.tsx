@@ -5,7 +5,6 @@ import { Dialog } from "@base-ui/react/dialog";
 import { PenLine, X } from "lucide-react";
 import { cn } from "cn";
 import { DEFAULT_PARAMS } from "../../../src/triage/policy";
-import { useRunStore } from "@/components/run-store";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { classify } from "@/lib/classify";
 import type { Row } from "@/lib/rows";
@@ -16,14 +15,13 @@ import { Detail } from "./detail";
  * A ticket the reader writes, over the floor rather than away from it.
  *
  * It has no id in the eval set, so the evidence is shown in the window itself
- * rather than at /tickets/…. The answer still goes to the run store, which is
- * what every other surface reads.
+ * rather than at /tickets/…, and it stays out of the run session: it is not
+ * part of a run, and a Start or a Reset has no business clearing it.
  *
  * The verdict uses the default policy: the thresholds on the floor are that
  * component's own state and do not reach in here.
  */
 export function ComposeDialog() {
-  const { record } = useRunStore();
   const [row, setRow] = useState<Row | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +35,6 @@ export function ComposeDialog() {
 
     try {
       const live = await classify({ subject, body });
-      record(id, live);
       setRow({ id, subject: subject || "(no subject)", body, live, pending: false, own: true });
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Classification failed.");

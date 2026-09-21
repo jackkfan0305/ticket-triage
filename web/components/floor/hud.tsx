@@ -14,6 +14,7 @@ import {
   Sun,
 } from "lucide-react";
 import type { PolicyParams } from "../../../src/triage/policy";
+import { TICKET_COUNTS } from "@/lib/rows";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -35,9 +36,6 @@ const RUN_LABEL: Record<RunState, string> = {
   done: "Done",
 };
 
-/** How much of the eval set is on the floor. The run classifies exactly what
- *  is on the floor, so this picks the sample and the workload at once. */
-export const TICKET_COUNTS = [50, 100, 500, 1000] as const;
 
 type Camera = {
   zoom: number;
